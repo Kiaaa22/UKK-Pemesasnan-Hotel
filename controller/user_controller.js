@@ -1,7 +1,8 @@
 const md5 = require('md5')
 const userModel = require('../models/index').user
 const Op = require('sequelize').Op
-const upload = require(`./upload_foto_user`).single(`foto_user`)
+const upload = require(`./upload_foto_user`).single(`foto`);
+
 
 //get all user
 exports.getAllUser = async (request, response) => {
@@ -70,8 +71,7 @@ exports.findUser = async (request, response) => {
 }
 //add user
 exports.addUser = async (request, response)=> {
-    try{
-    console.log("tes")
+    
     upload(request, response, async error => {
         if (error){
             return response.json({ message: error})
@@ -104,13 +104,8 @@ exports.addUser = async (request, response)=> {
             message: error.message
         })
     })
-} catch(err){
-    return res.status(401).json({
-        message: `err`
-        ,err: err
-    })
 }
-}
+
 
 //update user
 exports.updateUser = (request, response) => {
