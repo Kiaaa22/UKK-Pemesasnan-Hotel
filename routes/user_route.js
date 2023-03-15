@@ -7,9 +7,10 @@ app.use(express.json())
 
 const userController = require('../controller/user_controller')
 app.post("/login", userController.login)
-app.post("/add", upload.single('foto'), userController.addUser)
-app.put("/update/:id_user", auth.authVerify, upload.single("foto"), userController.updateUser)
-app.delete("/delete/:id_user", auth.authVerify, userController.deleteUser)
+app.post("/adduser", upload.single('foto'), userController.addUser)
 app.get("/", userController.getAllUser)
-app.get("/:id_user", auth.authVerify, userController.findUser)
+app.get("/:nama_user", userController.findUser)
+
+app.put("/update/:id_user", upload.single("foto"), userController.updateUser)
+app.delete("/delete/:id_user", userController.deleteUser)
 module.exports = app
