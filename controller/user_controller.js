@@ -1,7 +1,7 @@
 const express = require('express')
 const app = express()
 
-const md5 = require('md5')
+
 
 const userModel = require('../models/index').user
 const Op = require('sequelize').Op
@@ -18,6 +18,48 @@ app.use(bodyParser.urlencoded({ extended: false }))
 const jsonwebtoken = require('jsonwebtoken')
 const SECRET_KEY = 'secretcode'
 
+//login
+exports.login = async (request,response) => {
+  try {
+      const params = {
+          email: request.body.email,
+          password: request.body.password
+      };
+      console.log({params})
+      const findUser = await userModel.findOne({ where: params});
+      if (findUser == null) {
+          return response.status(404).json({
+              message: "email or password doesn't match"
+          });
+      }
+      console.log(findUser)
+      //generate jwt token
+      let tokenPayLoad = {
+          id_user: findUser.id_user,
+          email: findUser.email,
+          role: findUser.role,
+      };
+      tokenPayLoad = JSON.stringify(tokenPayLoad);
+      let token = await jsonwebtoken.sign(tokenPayLoad,SECRET_KEY);
+
+      return response.status(200).json({
+          message: "Success login",
+          data:{
+              token: token,
+              id_user: findUser.id_user,
+              email: findUser.email,
+              role: findUser.role,
+          },
+      });
+  } catch (error){
+      console.log(error);
+      return response.status(500).json({
+          message: "Internal error when trying to log in",
+          err: error,
+      });
+  }
+};
+
 //get all user
 exports.getAllUser = async (request, response) => {
   let users = await userModel.findAll()
@@ -28,44 +70,6 @@ exports.getAllUser = async (request, response) => {
   })
 }
 
-exports.login = async (req, res) => {
-  try {
-    const params = {
-      email: req.body.email,
-      password: md5(req.body.password),
-    }
-    const findUser = await user.findOne({ where: params })
-    if (findUser == null) {
-      return res.status(404).json({
-        message: "email or password doesn't match",
-        err: error,
-      })
-    }
-    console.log(findUser)
-    let tokenPayload = {
-      id_user: findUser.id_customer,
-      email: findUser.email,
-      role: findUser.role,
-    }
-    tokenPayload = JSON.stringify(tokenPayload)
-    let token = await jsonwebtoken.sign(tokenPayload, SECRET_KEY)
-    return res.status(200).json({
-      message: 'Success login',
-      data: {
-        token: token,
-        id_user: findUser.id_user,
-        email: findUser.email,
-        role: findUser.role,
-      },
-    })
-  } catch (err) {
-    console.log(err)
-    return res.status(500).json({
-      message: 'Internal error',
-      err: err.message,
-    })
-  }
-}
 //find user using keyword
 exports.findUser = async (request, response) => {
   let keyword = request.params.nama_user
