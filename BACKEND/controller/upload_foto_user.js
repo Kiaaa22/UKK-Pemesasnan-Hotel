@@ -6,19 +6,11 @@ const fs = require(`fs`)
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const dir = './foto';
-        if (!fs.existsSync(dir)) {
-            fs.mkdirSync(dir);
-        }
-        cb(null, path.join(__dirname, `../foto`), function (err, sucess) {
-            if (err) {
-                throw err;
-            }
-        });
+        cb(null, path.join(__dirname, `../foto`));
     },
 
     filename: (req, file, cb) => {
-        cb(null, file.originalname)
+        cb(null, Date.now()+'-'+file.originalname)
     }
 })
 

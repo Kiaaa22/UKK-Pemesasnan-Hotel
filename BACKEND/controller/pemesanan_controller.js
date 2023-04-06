@@ -15,10 +15,12 @@ exports.getAllPemesanan = async (request, response) => {
 
 //find pemesanan using keyword
 exports.findPemesanan = async (request, response) => {
-    let keyword = request.body.keyword
-    let pemesanans = await pemesananModel.findAll({
-    where : {
-        [Op.or] : [
+    let keyword = request.params.pemesanan
+  console.log(keyword)
+
+  let pemesanans = await pemesananModel.findOne({
+    where: {
+      [Op.or]: [
             { nomor_pemesanan : {[Op.substring] : keyword}},
             { nama_pemesanan : {[Op.substring] : keyword}},
             { email_pemesanan : {[Op.substring] : keyword}},
@@ -29,9 +31,10 @@ exports.findPemesanan = async (request, response) => {
             { jumlah_kamar : {[Op.substring] : keyword}},
             { status_pemesanan : {[Op.substring] : keyword}}
             //{ id_user : {[Op.substring] : keyword}}
-        ]
-    }
-})
+      ],
+    },
+  })
+
     return response.json({
         success: true,
         data: pemesanans,
