@@ -131,9 +131,6 @@ exports.updateUser = (request, response) => {
   const req = JSON.parse(JSON.stringify(request.body))
   console.log('request.body', request.file)
   upload(request, response, async (error) => {
-    // if (error) {
-    //   return response.json({ message: error })
-    // }
     let id_user = request.params.id_user
     const user = {
       nama_user: req.nama_user,
