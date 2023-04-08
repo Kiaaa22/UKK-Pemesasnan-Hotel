@@ -14,7 +14,6 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false}))
 
 const jsonwebtoken = require(`jsonwebtoken`)
-const tipe_kamar = require('../models/tipe_kamar')
 const SECRET_KEY = `secretcode`
 
 //get all tipe kamar
