@@ -20,6 +20,12 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   tipe_kamar.init({
+    id_tipe_kamar: {
+      allowNull: false,
+      autoIncrement: true,
+      primaryKey: true,
+      type: DataTypes.INTEGER
+  },
     nama_tipe_kamar: DataTypes.STRING,
     harga: DataTypes.INTEGER,
     deskripsi: DataTypes.STRING,
