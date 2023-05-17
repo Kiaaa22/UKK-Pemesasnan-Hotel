@@ -36,4 +36,4 @@ const authVerify = async (req, res, next) => {
     }
 };
 
-module.exports = { authVerify };
+module.exports = authVerify;

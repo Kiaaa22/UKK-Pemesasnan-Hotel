@@ -30,7 +30,6 @@ exports.findPemesanan = async (request, response) => {
             { nama_tamu : {[Op.substring] : keyword}},
             { jumlah_kamar : {[Op.substring] : keyword}},
             { status_pemesanan : {[Op.substring] : keyword}}
-            //{ id_user : {[Op.substring] : keyword}}
       ],
     },
   })
@@ -54,7 +53,6 @@ exports.addPemesanan = (request, response)=> {
         nama_tamu : request.body.nama_tamu,
         jumlah_kamar : request.body.jumlah_kamar,
         status_pemesanan : request.body.status_pemesanan,
-        //id_user : request.body.id_user
     }
     pemesananModel.create(newPemesanan)
     .then(result => {

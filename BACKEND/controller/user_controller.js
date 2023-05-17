@@ -3,7 +3,7 @@ const app = express()
 
 const userModel = require('../models/index').user
 const Op = require('sequelize').Op
-
+const md5 = require('md5')
 const path = require(`path`)
 const fs = require(`fs`)
 
@@ -22,40 +22,41 @@ exports.login = async (request, response) => {
     const params = {
       email: request.body.email,
       password: request.body.password,
-    }
-    console.log({ params })
-    const findUser = await userModel.findOne({ where: params })
+    };
+    console.log(params.email);
+    const findUser = await userModel.findOne({ where: params });
     if (findUser == null) {
       return response.status(404).json({
         message: "email or password doesn't match",
-      })
+        // err: error,
+      });
     }
-    console.log(findUser)
+    console.log(findUser);
     //generate jwt token
     let tokenPayLoad = {
-      id_user: findUser.id_user,
+      id_user: findUser.id_costumer,
       email: findUser.email,
       role: findUser.role,
-    }
-    tokenPayLoad = JSON.stringify(tokenPayLoad)
-    let token = await jsonwebtoken.sign(tokenPayLoad, SECRET_KEY)
+    };
+    tokenPayLoad = JSON.stringify(tokenPayLoad);
+    let token = await jsonwebtoken.sign(tokenPayLoad, SECRET_KEY);
 
     return response.status(200).json({
-      message: 'Success login',
+      message: "Success login",
       data: {
         token: token,
         id_user: findUser.id_user,
         email: findUser.email,
         role: findUser.role,
       },
-    })
+    });
   } catch (error) {
-    console.log(error)
+    console.log(error);
     return response.status(500).json({
-      message: 'Internal error when trying to log in',
-      err: error,
-    })
-  }
+      message: "Internal error",
+      err: error.message,
+    });
+  }
 }
 
 //get all user
@@ -92,7 +93,7 @@ exports.addUser = (request, response) => {
   const req = JSON.parse(JSON.stringify(request.body))
   console.log(req)
   upload(request, response, async (error) => {
-    if (!error) {
+    if (error) {
       return response.json({ message: error, inpo: 'uuuu' })
     }
     if (!request.file) {
@@ -100,11 +101,11 @@ exports.addUser = (request, response) => {
     }
 
     let newUser = {
-      nama_user: req.nama_user,
+      nama_user: request.body.nama_user,
       foto: request.file.filename,
-      email: req.email,
-      password: req.password,
-      role: req.role,
+      email: request.body.email,
+      password: request.body.password,
+      role: request.body.role,
     }
 
     console.log(newUser)
@@ -133,10 +134,10 @@ exports.updateUser = (request, response) => {
   upload(request, response, async (error) => {
     let id_user = request.params.id_user
     const user = {
-      nama_user: req.nama_user,
+      nama_user: request.body.nama_user,
       foto: request.file.filename,
-      email: req.email,
-      password: req.password,
+      email: request.body.email,
+      password: request.body.password,
     }
     if (request.file) {
       const selectedUser = await userModel.findOne({

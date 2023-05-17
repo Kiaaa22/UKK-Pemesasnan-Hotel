@@ -1,16 +1,17 @@
 // memanggil dan inisiasi express
 const express = require(`express`)
-const upload = require('../controller/upload_foto_user')
+// const upload = require('../controller/upload_foto_user')
 const app = express()
-const auth = require("../auth/auth")
+
 app.use(express.json())
 
 const userController = require('../controller/user_controller')
-app.post("/login", userController.login)
+const auth = require("../auth/auth")
 
-app.post("/adduser", upload.single('foto'), userController.addUser)
-app.get("/", userController.getAllUser)
-app.get("/find/:nama_user", userController.findUser)
-app.put("/update/:id_user", upload.single("foto"), userController.updateUser)
-app.delete("/delete/:id_user", userController.deleteUser)
+app.post("/login", userController.login)
+app.post("/adduser", auth, userController.addUser)
+app.get("/", auth, userController.getAllUser)
+app.get("/find/:nama_user", auth, userController.findUser)
+app.put("/update/:id_user", auth, userController.updateUser)
+app.delete("/delete/:id_user", auth, userController.deleteUser)
 module.exports = app

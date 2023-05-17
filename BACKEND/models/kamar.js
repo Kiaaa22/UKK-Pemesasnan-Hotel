@@ -18,6 +18,12 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   kamar.init({
+    id_kamar: {
+      allowNull: false,
+      autoIncrement: true,
+      primaryKey: true,
+      type: DataTypes.INTEGER
+  },
     nomor_kamar: DataTypes.INTEGER,
     id_tipe_kamar: DataTypes.INTEGER
   }, {

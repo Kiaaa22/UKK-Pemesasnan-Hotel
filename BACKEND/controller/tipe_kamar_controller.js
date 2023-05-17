@@ -28,7 +28,7 @@ exports.getAllTipekamar = async (request, response) => {
 
 //find tipe kamar using keyword
 exports.findTipekamar = async (request, response) => {
-    let keyword = request.body.keyword
+    let keyword = request.params.keyword
     console.log(keyword)
 
     let tipe_kamars = await tipe_kamarModel.findOne({
@@ -38,7 +38,8 @@ exports.findTipekamar = async (request, response) => {
             { deskripsi : {[Op.substring] : keyword}}
         ]
     }
-})
+
+}) 
     return response.json({
         success: true,
         data: tipe_kamars,
@@ -51,7 +52,7 @@ exports.addTipekamar = async (request, response)=> {
     const req = JSON.parse(JSON.stringify(request.body))
     console.log(req)
     upload(request, response, async (error) => {
-        if (!error){
+        if (error){
             return response.json({ message: error, inpo: 'aaaaa' })
         }
         if (!request.file) {
@@ -59,9 +60,9 @@ exports.addTipekamar = async (request, response)=> {
         }
 
         let newTipekamar = {
-            nama_tipe_kamar : req.nama_tipe_kamar,
-            harga : req.harga,
-            deskripsi : req.deskripsi,
+            nama_tipe_kamar : request.body.nama_tipe_kamar,
+            harga : request.body.harga,
+            deskripsi : request.body.deskripsi,
             foto : request.file.filename
         }
         
@@ -91,9 +92,9 @@ exports.updateTipekamar = async (request, response) => {
     upload(request, response, async (error) => {
         let id_tipe_kamar = request.params.id_tipe_kamar
         const tipe_kamar = {
-            nama_tipe_kamar : req.nama_tipe_kamar,
-            harga : req.harga,
-            deskripsi : req.deskripsi,
+            nama_tipe_kamar : request.body.nama_tipe_kamar,
+            harga : request.body.harga,
+            deskripsi : request.body.deskripsi,
             foto : request.file.filename
         }
         if (request.file) {
@@ -132,8 +133,7 @@ exports.updateTipekamar = async (request, response) => {
 exports.deleteTipekamar = async (request, response)=> {
     const id_tipe_kamar = request.params.id_tipe_kamar
     const tipe_kamar = await tipe_kamarModel.findOne({ where: { id_tipe_kamar : id_tipe_kamar}})
-    const oldFotoTipekamar = tipe_kamar.foto
-    const pathFoto = path.join(__dirname, `foto_tipe_kamar`, oldFotoTipekamar)
+    const pathFoto = path.join(__dirname, `foto_tipe_kamar`)
 
     if (fs.existsSync(pathFoto)) {
         fs.unlink(pathFoto, error => console.log(error))
@@ -143,7 +143,7 @@ exports.deleteTipekamar = async (request, response)=> {
     .then(result => {
         return response.json ({
             success: true,
-            message: 'Data tepi kamar has been deleted'
+            message: 'Data tipe kamar has been deleted'
         })
     })
     .catch(error => {

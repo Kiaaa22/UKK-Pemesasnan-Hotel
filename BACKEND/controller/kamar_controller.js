@@ -2,6 +2,7 @@ const express = require('express')
 const app = express()
 
 const kamarModel = require('../models/index').kamar
+const tipe_kamarModel = require('../models/index').tipe_kamar
 const Op = require('sequelize').Op
 
 const path = require(`path`)
@@ -11,12 +12,13 @@ const bodyParser = require('body-parser')
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 
-const jsonwebtoken = require('jsonwebtoken')
-const SECRET_KEY = 'secretcode'
-
-//get all kamar
+// get all kamar
 exports.getAllKamar = async (request, response) => {
-    let kamars = await kamarModel.findAll()
+    let kamars = await kamarModel.findAll({
+      attributes: {
+        exclude: ['tipeKamarIdTipeKamar']
+      }
+    })
     return response.json({
         success: true,
         data: kamars,
@@ -24,7 +26,7 @@ exports.getAllKamar = async (request, response) => {
     })
 }
 
-//find kamar using keyword
+// find kamar
 exports.findKamar = async (request, response) => {
     let keyword = request.body.keyword
     console.log(keyword)
@@ -34,6 +36,9 @@ exports.findKamar = async (request, response) => {
         [Op.or] : [
             { nomor_kamar : {[Op.substring] : keyword}},
         ]
+    },
+    attributes: {
+      exclude: ['tipeKamarIdTipeKamar']
     }
 })
     return response.json({
@@ -43,34 +48,52 @@ exports.findKamar = async (request, response) => {
     })
 }
 
-//add kamar
-exports.addKamar = (request, response)=> {
-    let newKamar = {
-        nomor_kamar : request.body.nomor_kamar,
-    }
+// add kamar
+exports.addKamar = async (request, response) => {
+  let newKamar = {
+    nomor_kamar: request.body.nomor_kamar,
+    id_tipe_kamar: request.body.id_tipe_kamar,
+  }
+  console.log(newKamar)
+  
+    let tipe_kamar = await tipe_kamarModel.findOne({
+      where: { 
+        id_tipe_kamar: newKamar.id_tipe_kamar,
+      },
+    })
 
-    console.log(newamar)
-    kamarModel
-    .create(newKamar)
-    .then((result) => {
-        return response.json ({
+    if(tipe_kamar){
+
+      let tes = newKamar.id_tipe_kamar == tipe_kamar.id_tipe_kamar
+      console.log(tes) 
+    
+    if (tes) {
+      kamarModel.create(newKamar)
+        .then(result => {
+          return response.json({
             success: true,
             data: result,
-            message: 'New kamar has been inserted'
+            message: 'Kamar telah ditambahkan'
+          })
         })
-    })
-    .catch((error) => {
-        return response.json({
+        .catch(error => {
+          return response.json({
             success: false,
             message: error.message
-        })
-    })
-}
-
-//update kamar
+          })
+        })}
+    } else {
+      return response.json({
+        success: false,
+        message: "Tipe kamar tidak ditemukan"
+      })
+    }
+  }
+  
+// update kamar
 exports.updateKamar = (request, response) => {
     let dataKamar = {
-        nomor_kamar : request.body.nama_kamar,
+        nomor_kamar : request.body.nomor_kamar,
     }
     let id_kamar = request.params.id_kamar
     kamarModel
