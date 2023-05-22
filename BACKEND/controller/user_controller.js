@@ -28,13 +28,13 @@ exports.login = async (request, response) => {
     if (findUser == null) {
       return response.status(404).json({
         message: "email or password doesn't match",
-        // err: error,
+        err: error,
       });
     }
     console.log(findUser);
     //generate jwt token
     let tokenPayLoad = {
-      id_user: findUser.id_costumer,
+      id_user: findUser.id_user,
       email: findUser.email,
       role: findUser.role,
     };

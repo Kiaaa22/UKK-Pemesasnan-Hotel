@@ -17,6 +17,10 @@ exports.getAllKamar = async (request, response) => {
     let kamars = await kamarModel.findAll({
       attributes: {
         exclude: ['tipeKamarIdTipeKamar']
+      },
+      include: {
+        model: tipe_kamarModel,
+        attributes: ['harga']
       }
     })
     return response.json({

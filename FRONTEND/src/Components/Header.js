@@ -7,13 +7,13 @@ export default class Header extends React.Component {
         this.state = {
             role: "",
             email : "",
-            user_name : ""
+            nama_user : ""
 
         }
 
         this.state.role = localStorage.getItem("role")
         this.state.email = localStorage.getItem("email")
-        this.state.user_name = localStorage.getItem("username")
+        this.state.nama_user = localStorage.getItem("nama_user")
     }
 
     checkRole = () => {
@@ -61,7 +61,7 @@ export default class Header extends React.Component {
                                 class="h-10 w-10 bg-gray-200 border rounded-full"
                             />
                             <span class="flex flex-col ml-2">
-                                <span class="truncate w-20 font-semibold tracking-wide leading-none">{this.state.user_name}</span>
+                                <span class="truncate w-20 font-semibold tracking-wide leading-none">{this.state.nama_user}</span>
                                 <span class="truncate w-20 text-gray-500 text-xs leading-none mt-1">{this.state.role}</span>
                             </span>
                         </a>

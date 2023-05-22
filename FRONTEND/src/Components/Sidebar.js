@@ -46,7 +46,7 @@ export default class Sidebar extends React.Component {
                     <div class="inline-flex">
                         <a href="#" class="inline-flex flex-row items-center">
                             <img src="/assets/logo.png" class="w-12 h-12 text-red-400" fill="currentColor" viewBox="0 0 20 20" />
-                            <span class="leading-10 text-blue-600 text-2xl font-bold ml-1 uppercase">Slippy</span>
+                            <span class="leading-10 text-blue-600 text-2xl font-bold ml-1 uppercase">REDFlag</span>
                         </a>
                     </div>
                 </div>
@@ -65,24 +65,24 @@ export default class Sidebar extends React.Component {
                         </li>
                         <li class="my-px">
                             <a
-                                href="/typeroom"
+                                href="/tipe_kamar"
                                 class="flex flex-row items-center h-10 px-3 rounded-lg text-blue-600 hover:bg-blue-100 hover:text-blue-800 font-base"
                             >
                                 <span class="mr-2 flex items-center justify-center text-lg text-gray-400">
                                     <FontAwesomeIcon icon={faBed} color="blue" />
                                 </span>
-                                <span class="ml-3">Type Room</span>
+                                <span class="ml-3">Tipe Kamar</span>
                             </a>
                         </li>
                         <li class="my-px">
                             <a
-                                href="/room"
+                                href="/kamar"
                                 class="flex flex-row items-center h-10 px-3 rounded-lg text-blue-600 hover:bg-blue-100 hover:text-blue-800 font-base"
                             >
                                 <span class="mr-3 flex items-center justify-center text-lg text-gray-400">
                                     <FontAwesomeIcon icon={faList} color="blue" />
                                 </span>
-                                <span class="ml-3">Room</span>
+                                <span class="ml-3">Kamar</span>
                             </a>
                         </li>
                         <li class="my-px">
@@ -96,7 +96,7 @@ export default class Sidebar extends React.Component {
                                 <span class="ml-4">User</span>
                             </a>
                         </li>
-                        <li class="my-px">
+                        {/* <li class="my-px">
                             <a
                                 href="/customer"
                                 class="flex flex-row items-center h-10 px-3 rounded-lg text-blue-600 hover:bg-blue-100 hover:text-blue-800 font-base"
@@ -106,7 +106,7 @@ export default class Sidebar extends React.Component {
                                 </span>
                                 <span class="ml-2">Customer</span>
                             </a>
-                        </li>
+                        </li> */}
                         <li class="my-px">
                             <a
                                 href="/historytransaksi"

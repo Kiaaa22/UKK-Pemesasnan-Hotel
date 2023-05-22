@@ -11,11 +11,11 @@ export default class Room extends React.Component {
     constructor() {
         super()
         this.state = {
-            room: [],
-            typeroom: [],
-            id_room: "",
-            room_number: "",
-            id_room_type: "",
+            kamar: [],
+            tipekamar: [],
+            id_kamar: "",
+            nomor_kamar: "",
+            id_tipe_kamar: "",
             role: "",
             token: "",
             action: "",
@@ -28,7 +28,7 @@ export default class Room extends React.Component {
                 this.state.token = localStorage.getItem("token")
                 this.state.role = localStorage.getItem("role")
             } else {
-                window.alert("You're not admin or resepsionis!")
+                window.alert("LOH SIAPA KAMU WE")
                 window.location = "/"
             }
         }
@@ -48,19 +48,20 @@ export default class Room extends React.Component {
     }
 
     handleClose = () => {
-        $("#modal_room").hide()
+        $("#modal_kamar").hide()
     }
 
     _handleFilter = () => {
         let data = {
             keyword: this.state.keyword,
         }
-        let url = "http://localhost:8080/room/find/filter"
-        axios.post(url, data)
+        let url = "http://localhost:8000/kamar/find"
+        axios
+            .post(url, data)
             .then(response => {
                 if (response.status === 200) {
                     this.setState({
-                        room: response.data.data
+                        kamar: response.data.data
                     })
                 } else {
                     alert(response.data.message)
@@ -74,21 +75,21 @@ export default class Room extends React.Component {
     }
 
     handleAdd = () => {
-        $("#modal_room").show()
+        $("#modal_kamar").show()
         this.setState({
-            id_room: "",
-            room_number: "",
-            id_room_type: "",
+            id_kamar: "",
+            nomor_kamar: "",
+            id_tipe_kamar: "",
             action: "insert"
         })
     }
 
     handleEdit = (item) => {
-        $("#modal_room").show()
+        $("#modal_kamar").show()
         this.setState({
-            id_room: item.id_room,
-            room_number: item.room_number,
-            id_room_type: item.id_room_type,
+            id_kamar: item.id_kamar,
+            nomor_kamar: item.nomor_kamar,
+            id_tipe_kamar: item.id_tipe_kamar,
             action: "update"
         })
     }
@@ -97,29 +98,29 @@ export default class Room extends React.Component {
         e.preventDefault()
 
         let form = {
-            id_room: this.state.id_room,
-            room_number: this.state.room_number,
-            id_room_type: this.state.id_room_type
+            id_kamar: this.state.id_kamar,
+            nomor_kamar: this.state.nomor_kamar,
+            id_tipe_kamar: this.state.id_tipe_kamar
         }
 
         if (this.state.action === "insert") {
-            let url = "http://localhost:8080/room/add"
+            let url = "http://localhost:8000/kamar/add"
             axios.post(url, form, this.headerConfig())
                 .then(response => {
-                    this.getRoom()
+                    this.getKamar()
                     this.handleClose()
                 })
                 .catch(error => {
                     console.log("error add data", error.response.status)
                     if (error.response.status === 500) {
-                        window.alert("Failed to add data");
+                        window.alert("Hayo gabisa tambah data");
                     }
                 })
         } else {
-            let url = "http://localhost:8080/room/update/" + this.state.id_room
+            let url = "http://localhost:8000/kamar/update/" + this.state.id_kamar
             axios.put(url, form, this.headerConfig())
                 .then(response => {
-                    this.getRoom()
+                    this.getKamar()
                     this.handleClose()
                 })
                 .catch(error => {
@@ -128,28 +129,28 @@ export default class Room extends React.Component {
         }
     }
 
-    handleDrop = (id) => {
-        let url = "http://localhost:8080/room/delete/" + id
-        if (window.confirm("Are you sure to delete this room")) {
+    handleDrop = (id_kamar) => {
+        let url = "http://localhost:8000/kamar/delete/" + id_kamar
+        if (window.confirm("Betulan ni mau di apus ?")) {
             axios.delete(url, this.headerConfig())
                 .then(response => {
                     console.log(response.data.message)
-                    this.getRoom()
+                    this.getKamar()
                 })
                 .catch(error => {
                     if (error.response.status === 500) {
-                        window.alert("You can't delete this data");
+                        window.alert("Gabisa di apus lhoooo");
                     }
                 })
         }
     }
 
-    getRoom = () => {
-        let url = "http://localhost:8080/room"
+    getKamar = () => {
+        let url = "http://localhost:8000/kamar/get"
         axios.get(url)
             .then(response => {
                 this.setState({
-                    room: response.data.data
+                    kamar: response.data.data
                 })
                 console.log(response.data.data)
             })
@@ -158,12 +159,12 @@ export default class Room extends React.Component {
             })
     }
 
-    getTypeRoom = () => {
-        let url = "http://localhost:8080/room-type"
+    getTipe_kamar = () => {
+        let url = "http://localhost:8000/tipe_kamar/"
         axios.get(url)
             .then(response => {
                 this.setState({
-                    typeroom: response.data.data
+                    tipe_kamar: response.data.data
                 })
                 console.log(response.data.data)
             })
@@ -175,14 +176,14 @@ export default class Room extends React.Component {
     checkRole = () => {
         if (this.state.role !== "admin" && this.state.role !== "resepsionis") {
             localStorage.clear()
-            window.alert("You're not admin or resepsionis!")
+            window.alert("LOH SIAPA KAMU WE")
             window.location = '/'
         }
     }
 
     componentDidMount() {
-        this.getRoom()
-        this.getTypeRoom()
+        this.getKamar()
+        this.getTipe_kamar()
         this.checkRole()
     }
 
@@ -200,7 +201,7 @@ export default class Room extends React.Component {
                             <div className="flex rounded w-1/2">
                                 <input
                                     type="text"
-                                    className="w-2/3 block w-full px-4 py-2 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
+                                    className="w-2/3 block px-4 py-2 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
                                     placeholder="Search..."
                                     name="keyword"
                                     value={this.state.keyword}

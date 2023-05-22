@@ -18,8 +18,8 @@ export default class User extends React.Component {
         this.state = {
             user: [],
             id_user: "",
-            user_name: "",
-            photo: "",
+            nama_user: "",
+            foto: "",
             email: "",
             password: "",
             role: "",
@@ -36,7 +36,7 @@ export default class User extends React.Component {
                 this.state.token = localStorage.getItem("token");
                 this.state.role = localStorage.getItem("role");
             } else {
-                window.alert("You're not admin or resepsionis!");
+                window.alert("LOH SIAPA KAMU WE");
                 window.location = "/";
             }
         }
@@ -61,7 +61,7 @@ export default class User extends React.Component {
 
     handleFile = (e) => {
         this.setState({
-            photo: e.target.files[0]
+            foto: e.target.files[0]
         })
     }
 
@@ -69,7 +69,7 @@ export default class User extends React.Component {
         let data = {
             keyword: this.state.keyword,
         }
-        let url = "http://localhost:8080/user/find/filter"
+        let url = "http://localhost:8000/user/find/filter"
         axios.post(url, data)
             .then(response => {
                 if (response.status === 200) {
@@ -91,8 +91,8 @@ export default class User extends React.Component {
         $("#modal_user").show();
         this.setState({
             id_user: "",
-            user_name: "",
-            photo: "",
+            nama_user: "",
+            foto: "",
             email: "",
             password: "",
             role: "",
@@ -105,7 +105,7 @@ export default class User extends React.Component {
         $("#modal_user").show();
         this.setState({
             id_user: item.id_user,
-            user_name: item.user_name,
+            nama_user: item.nama_user,
             photo: item.photo,
             email: item.email,
             password: item.password,
@@ -119,7 +119,7 @@ export default class User extends React.Component {
 
         let form = new FormData()
         form.append("id_user", this.state.id_user)
-        form.append("user_name", this.state.user_name)
+        form.append("user_name", this.state.nama_user)
         form.append("photo", this.state.photo)
         form.append("email", this.state.email)
         form.append("password", this.state.password)
@@ -127,15 +127,15 @@ export default class User extends React.Component {
 
         let data = {
             id_user: this.state.id_user,
-            user_name: this.state.user_name,
-            photo: this.state.photo,
+            nama_user: this.state.nama_user,
+            foto: this.state.foto,
             email: this.state.email,
             password: this.state.password,
             role: this.state.role,
         }
 
         if (this.state.action === "insert") {
-            let url = "http://localhost:8080/user/add"
+            let url = "http://localhost:8000/user/add"
             axios.post(url, form)
                 .then(response => {
                     this.getUser()
@@ -144,11 +144,11 @@ export default class User extends React.Component {
                 .catch(error => {
                     console.log("error add data", error.response.status)
                     if (error.response.status === 500) {
-                        window.alert("Failed to add data");
+                        window.alert("Hayo gabisa tambah data");
                     }
                 })
         } else {
-            let url = "http://localhost:8080/user/update/" + this.state.id_user
+            let url = "http://localhost:8000/user/update/" + this.state.id_user
             axios.put(url, form, this.headerConfig())
                 .then(response => {
                     this.getUser()
@@ -162,8 +162,8 @@ export default class User extends React.Component {
     }
 
     handleDrop = (id) => {
-        let url = "http://localhost:8080/user/delete/" + id
-        if (window.confirm("Are you sure to delete this customer ? ")) {
+        let url = "http://localhost:8000/user/delete/" + id
+        if (window.confirm("Betulan ni mau di apus ? ")) {
             axios.delete(url, this.headerConfig())
                 .then(response => {
                     console.log(response.data.message)
@@ -171,14 +171,14 @@ export default class User extends React.Component {
                 })
                 .catch(error => {
                     if (error.response.status === 500) {
-                        window.alert("You can't delete this data");
+                        window.alert("Hayoo gabisa di apus");
                     }
                 })
         }
     }
 
     getUser = () => {
-        let url = "http://localhost:8080/user";
+        let url = "http://localhost:8000/user";
         axios
             .get(url)
             .then((response) => {
@@ -194,7 +194,7 @@ export default class User extends React.Component {
     checkRole = () => {
         if (this.state.role !== "admin" && this.state.role !== "resepsionis") {
             localStorage.clear()
-            window.alert("You're not admin or resepsionis!")
+            window.alert("LOH SIAPA KAMU WE")
             window.location = '/'
         }
     }
@@ -219,7 +219,7 @@ export default class User extends React.Component {
                             <div className="flex rounded w-1/2">
                                 <input
                                     type="text"
-                                    className="w-2/3 block w-full px-4 py-2 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
+                                    className="w-2/3 block px-4 py-2 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40"
                                     placeholder="Search..."
                                     name="keyword"
                                     value={this.state.keyword}
@@ -295,7 +295,7 @@ export default class User extends React.Component {
                                                                 <div className="flex-shrink-0 h-10 w-10">
                                                                     <img
                                                                         className="h-10 w-10 rounded-full"
-                                                                        src={"http://localhost:8080/uploads/image/" + item.photo}
+                                                                        src={"http://localhost:8000/uploads/image/" + item.photo}
                                                                         alt=""
                                                                     />
                                                                 </div>

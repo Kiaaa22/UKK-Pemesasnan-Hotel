@@ -38,7 +38,7 @@ export default class HistoryTransaksi extends React.Component {
                 this.state.token = localStorage.getItem("token")
                 this.state.role = localStorage.getItem("role")
             } else {
-                window.alert("You're not admin or resepsionis!")
+                window.alert("LOH SIAPA KAMU WE")
                 window.location = "/"
             }
         }
@@ -132,7 +132,7 @@ export default class HistoryTransaksi extends React.Component {
     checkRole = () => {
         if (this.state.role !== "admin" && this.state.role !== "resepsionis") {
             localStorage.clear()
-            window.alert("You're not admin or resepsionis!")
+            window.alert("LOH SIAPA KAMU WE")
             window.location = '/'
         }
     }
@@ -157,7 +157,7 @@ export default class HistoryTransaksi extends React.Component {
                             <div className="flex rounded w-1/3 mr-4">
                                 <input
                                     type="text"
-                                    className="w-2/3 block w-full px-4 py-2 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40 "
+                                    className="w-2/3 block px-4 py-2 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40 "
                                     placeholder="Search..."
                                     name="keyword"
                                     value={this.state.keyword}

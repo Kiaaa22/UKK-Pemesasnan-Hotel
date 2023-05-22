@@ -8,9 +8,9 @@ export default class Dashboard extends React.Component {
         super()
         this.state = {
             user: [],
-            customer: [],
-            typeroom: [],
-            room: [],
+            // customer: [],
+            tipe_kamar: [],
+            kamar: [],
             role: "",
             token: "",
             action: ""
@@ -18,12 +18,14 @@ export default class Dashboard extends React.Component {
         }
 
         if (localStorage.getItem("token")) {
-            if (localStorage.getItem("role") === "admin" ||
-                localStorage.getItem("role") === "resepsionis") {
+            if (
+                localStorage.getItem("role") === "admin" ||
+                localStorage.getItem("role") === "resepsionis"
+             ) {
                 this.state.token = localStorage.getItem("token")
                 this.state.role = localStorage.getItem("role")
             } else {
-                window.alert("You're not admin or resepsionis!")
+                window.alert("LOH SIAPA KAMU WE")
                 window.location = "/"
             }
         }
@@ -32,17 +34,17 @@ export default class Dashboard extends React.Component {
     headerConfig = () => {
         let header = {
             headers: { Authorization: `Bearer ${this.state.token}` }
-        }
+        };
         return header;
-    }
+    };
 
     getUser = () => {
-        let url = "http://localhost:8080/user";
+        let url = "http://localhost:8000/user/";
         axios
             .get(url, this.headerConfig())
             .then((response) => {
                 this.setState({
-                    user: response.data.count,
+                    user: response.data,
                 });
             })
             .catch((error) => {
@@ -50,41 +52,30 @@ export default class Dashboard extends React.Component {
             });
     };
 
-    getCustomer = () => {
-        let url = "http://localhost:8080/customer/"
-        axios.get(url)
-            .then((response) => {
-                this.setState({
-                    customer: response.data.count
-                })
-            })
-            .catch((error) => {
-                console.log(error)
-            })
-    }
-
-    getRoom = () => {
-        let url = "http://localhost:8080/room"
-        axios.get(url)
+    getKamar = () => {
+        let url = "http://localhost:8000/kamar/get"
+        axios
+            .get(url)
             .then(response => {
                 this.setState({
-                    room: response.data.count
+                    kamar: response.data,
                 })
-                console.log(response.data.data)
+                // console.log(response.data.data)
             })
             .catch(error => {
                 console.log(error)
             })
     }
 
-    getTypeRoom = () => {
-        let url = "http://localhost:8080/room-type"
-        axios.get(url)
-            .then(response => {
+    getTipe_kamar = () => {
+        let url = "http://localhost:8000/tipe_kamar/"
+        axios
+            .get(url)
+            .then((response) => {
                 this.setState({
-                    typeroom: response.data.count
+                    tipe_kamar: response.data
                 })
-                console.log(response.data.data)
+                // console.log(response.data.data)
             })
             .catch((error) => {
                 console.log(error)
@@ -94,16 +85,15 @@ export default class Dashboard extends React.Component {
     checkRole = () => {
         if (this.state.role !== "admin" && this.state.role !== "resepsionis") {
             localStorage.clear()
-            window.alert("You're not admin or resepsionis!")
+            window.alert("LOH SIAPA KAMU WE")
             window.location = '/'
         }
     }
 
     componentDidMount() {
         this.getUser();
-        this.getCustomer();
-        this.getRoom()
-        this.getTypeRoom()
+        this.getKamar()
+        this.getTipe_kamar()
         this.checkRole()
     }
 
@@ -117,27 +107,23 @@ export default class Dashboard extends React.Component {
                         <div class="flex flex-row h-40">
                             <div class="w-1/2 text-gray-700 text-center bg-rose-300 px-4 py-2 m-2 rounded-md border-2  border-rose-400 ">
                                 <p class="mt-8 text-xl font-medium">Jumlah User</p>
-                                <p class="text-lg font-bold">{this.state.user}</p>
                             </div>
                             <div class="w-1/2 text-gray-700 text-center bg-fuchsia-300 px-4 py-2 m-2 rounded-md border-2  border-fuchsia-400 ">
                                 <p class="mt-8 text-xl font-medium">Jumlah Customer</p>
-                                <p class="text-lg font-bold">{this.state.customer}</p>
                             </div>
                         </div>
                         <div class="flex flex-row h-40">
                             <div class="w-1/2 text-gray-700 text-center bg-sky-300 px-4 py-2 m-2 rounded-md border-2  border-sky-400 ">
                                 <p class="mt-8 text-xl font-medium">Jumlah Room</p>
-                                <p class="text-lg font-bold">{this.state.room}</p>
                             </div>
                             <div class="w-1/2 text-gray-700 text-center bg-cyan-300 px-4 py-2 m-2 rounded-md border-2  border-cyan-400 ">
                                 <p class="mt-8 text-xl font-medium">Jumlah Type Room</p>
-                                <p class="text-lg font-bold">{this.state.typeroom}</p>
                             </div>
                         </div>
                     </div>
                     <footer class="footer px-4 py-2">
                         <div class="footer-content">
-                            <p class="text-sm text-gray-600 text-center">© Brandname 2023. All rights reserved. <a href="https://twitter.com/iaminos">by Erairris</a></p>
+                            <p class="text-sm text-gray-600 text-center">REDflag 2023. All rights reserved.</p>
                         </div>
                     </footer>
                 </main>
