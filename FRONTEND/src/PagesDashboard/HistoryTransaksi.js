@@ -1,4 +1,4 @@
-import React, {useState} from 'react'
+import React from 'react'
 import Sidebar from '../Components/Sidebar'
 import Header from '../Components/Header'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
@@ -12,7 +12,6 @@ import $ from 'jquery'
 import moment from 'moment'
 
 export default class HistoryTransaksi extends React.Component {
- 
   constructor() {
     super()
     this.state = {
@@ -20,8 +19,9 @@ export default class HistoryTransaksi extends React.Component {
       user: [],
       tipe_kamar: [],
       id_pemesanan: '',
-      id_user: '',
+      id_user: 5,
       id_tipe_kamar: '',
+      nomor_kamar: '',
       nomor_pemesanan: '',
       nama_pemesanan: '',
       email_pemesanan: '',
@@ -77,13 +77,36 @@ export default class HistoryTransaksi extends React.Component {
   }
 
   handleEditStatus = (item) => {
+    console.log('item', item)
     $('#modal_pemesanan').show()
     this.setState({
-      id_pemesanan: item.id,
+      id: item.id,
       status_pemesanan: item.status_pemesanan,
-      action: 'update',
     })
-    console.log(this.state.id_pemesanan)
+
+    
+  }
+
+  handleSubmitEdit = (e) => {
+    e.preventDefault();
+
+    let url = 'http://localhost:8000/pemesanan/update/' + this.state.id;
+    let data = {
+        id: this.state.id,
+        status_pemesanan: this.state.status_pemesanan
+    }
+    axios
+      .put(url, data, this.headerConfig())
+      .then((response) => {
+        console.log('response', response)
+        this.getPemesanan()
+        this.getTipe_kamar()
+        this.getUser()
+        this.handleClose()
+      })
+      .catch((error) => {
+        console.log(error)
+      })
   }
 
   handleAdd = () => {
@@ -98,7 +121,7 @@ export default class HistoryTransaksi extends React.Component {
         tgl_check_in: '',
         tgl_check_out: '',
         nama_tamu: '',
-        //jumlah_kamar: "",
+        jumlah_kamar: '',
         status_pemesanan: '',
 
         action: 'insert',
@@ -106,77 +129,53 @@ export default class HistoryTransaksi extends React.Component {
     )
   }
 
-  handleEdit = (item) => {
-    $('#modal_pemesanan').show()
-    this.setState({
-      id_pemesanan: item.id,
-      status_pemesanan: item.status_pemesanan,
-    })
-  }
-
   handleSave = (e) => {
-    e.preventDefault()
+    // this.setState({ action: "add" });
 
-    console.log(this.state.id_pemesanan)
-    let form = {
-      id: this.state.id,
-      id_tipe_kamar: this.state.id_tipe_kamar,
-      nomor_pemesanan: this.state.nomor_pemesanan,
-      nama_pemesanan: this.state.nama_pemesanan,
-      email_pemesanan: this.state.email_pemesanan,
-      tgl_pemesanan: this.state.tgl_pemesanan,
-      tgl_check_in: this.state.tgl_check_in,
-      tgl_check_out: this.state.tgl_check_out,
-      nama_tamu: this.state.nama_tamu,
-      //jumlah_kamar: "",
-      status_pemesanan: this.state.status_pemesanan,
-    }
+    e.preventDefault()
     if (this.state.action === 'insert') {
       let url = 'http://localhost:8000/pemesanan/add'
+      let data = {
+        id_tipe_kamar: this.state.id_tipe_kamar || 9,
+        nama_pemesanan: this.state.nama_pemesanan,
+        email_pemesanan: this.state.email_pemesanan,
+        tgl_check_in: this.state.tgl_check_in,
+        tgl_check_out: this.state.tgl_check_out,
+        nama_tamu: this.state.nama_tamu,
+        status_pemesanan: this.state.status_pemesanan
+          ? this.state.status_pemesanan
+          : 'baru',
+        nama_user: 'kia',
+        nomor_pemesanan: this.state.nomor_pemesanan,
+        nomor_kamar: this.state.nomor_kamar,
+      }
+      console.log(data)
       axios
-        .post(url, form, this.headerConfig())
+        .post(url, data, this.headerConfig())
         .then((response) => {
-          if (response.data.code === 400) {
-            return this.setState({ errors: response.data.message })
-          }
           this.getPemesanan()
           this.getTipe_kamar()
-          this.setState({
-            id: '',
-            id_tipe_kamar: '',
-            nomor_pemesanan: '',
-            nama_pemesanan: '',
-            email_pemesanan: '',
-            tgl_pemesanan: '',
-            tgl_check_in: '',
-            tgl_check_out: '',
-            nama_tamu: '',
-            //jumlah_kamar: "",
-            status_pemesanan: '',
-          })
+          this.getUser()
           this.handleClose()
+          console.log('pppp')
+          console.log(response)
         })
         .catch((error) => {
-          console.log('error add data', error.response.status)
-          if (error.response.status === 500) {
-            window.alert('Hayo gabisa tambah data')
-          }
+          console.log(error)
         })
     } else {
-      let url = `http://localhost:8000/pemesanan/update/` + this.state.id
+      let url = 'http://localhost:8000/pemesanan/update/' + this.state.id
       axios
-        .put(url, form, this.headerConfig())
+        .put(url, this.headerConfig())
         .then((response) => {
+          console.log('response', response)
           this.getPemesanan()
           this.getTipe_kamar()
           this.getUser()
           this.handleClose()
         })
         .catch((error) => {
-          console.log('error add data', error.response.status)
-          if (error.response.status === 500) {
-            window.alert('Hayo gabisa tambah data')
-          }
+          console.log(error)
         })
     }
   }
@@ -260,8 +259,6 @@ export default class HistoryTransaksi extends React.Component {
     this.getPemesanan()
     this.checkRole()
   }
-
-
 
   render() {
     return (
@@ -368,8 +365,8 @@ export default class HistoryTransaksi extends React.Component {
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
-                        {this.state.pemesanan.map((item, index) => {
-                          return (
+                        {Array.isArray(this.state.pemesanan) &&
+                          this.state.pemesanan.map((item, index) => (
                             <tr key={index}>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="flex items-center">
@@ -380,13 +377,18 @@ export default class HistoryTransaksi extends React.Component {
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <div className="text-sm text-gray-900">
-                                  {item.nama_pemesanan}
+                                  {item.nama_pemesan}
                                 </div>
                               </td>
-
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="text-sm text-gray-900">
+                                  {item.nama_tamu}
+                                </div>
+                              </td>
                               <td className="px-6 py-4 whitespace-nowrap">
                                 <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                  {item.tipe_kamar?.nama_tipe_kamar}
+                                  {item.tipe_kamar &&
+                                    item.tipe_kamar.nama_tipe_kamar}
                                 </span>
                               </td>
                               <td className="px-6 py-4 whitespace-nowrap">
@@ -435,8 +437,15 @@ export default class HistoryTransaksi extends React.Component {
                               {this.state.role === 'resepsionis' && (
                                 <td className="px-6 py-4 whitespace-nowrap">
                                   <button
-                                    class="bg-green-600 hover:bg-green-700 text-white py-1 px-2 rounded mr-2"
+                                    className={`bg-green-600 hover:bg-green-700 text-white py-1 px-2 rounded mr-2 ${
+                                      item.status_pemesanan === 'check_out'
+                                        ? 'opacity-50 cursor-not-allowed'
+                                        : ''
+                                    }`}
                                     onClick={() => this.handleEditStatus(item)}
+                                    disabled={
+                                      item.status_pemesanan === 'check_out'
+                                    }
                                   >
                                     <FontAwesomeIcon
                                       icon={faPencilSquare}
@@ -446,8 +455,7 @@ export default class HistoryTransaksi extends React.Component {
                                 </td>
                               )}
                             </tr>
-                          )
-                        })}
+                          ))}
                       </tbody>
                     </table>
                   </div>
@@ -499,7 +507,7 @@ export default class HistoryTransaksi extends React.Component {
                 </h3>
                 <form
                   class="space-y-6"
-                  onSubmit={(event) => this.handleSave(event)}
+                  onSubmit={(event) => this.handleSubmitEdit(event)}
                 >
                   <div>
                     <label

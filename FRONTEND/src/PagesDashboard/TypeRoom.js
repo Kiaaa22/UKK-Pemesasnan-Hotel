@@ -144,10 +144,10 @@ export default class TypeRoom extends React.Component {
                         return this.setState({errors: response.data.message})
                     }
                     this.getTipe_kamar()
-                    this.handleClose()
                     console.log(response)
                     this.setState({errors: ''})
                     console.log(response)
+                    this.handleClose()
                 })
                 .catch(error => {
                     console.log(error)
