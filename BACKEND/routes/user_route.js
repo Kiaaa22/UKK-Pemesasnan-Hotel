@@ -12,7 +12,7 @@ app.post("/login", userController.login)
 
 app.post("/adduser", auth.authVerify, userController.addUser)
 app.get("/", auth.authVerify, userController.getAllUser)
-app.get("/find/:nama_user", auth.authVerify, userController.findUser)
+app.post("/find", auth.authVerify, userController.findUser)
 app.put("/update/:id_user", auth.authVerify, userController.updateUser)
 app.delete("/delete/:id_user", auth.authVerify, userController.deleteUser)
 module.exports = app

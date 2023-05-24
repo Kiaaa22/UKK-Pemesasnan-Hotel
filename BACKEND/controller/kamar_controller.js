@@ -9,48 +9,53 @@ const path = require(`path`)
 const fs = require(`fs`)
 
 const bodyParser = require('body-parser')
+const { sequelize } = require('../models/index')
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 
 // get all kamar
 exports.getAllKamar = async (request, response) => {
-    let kamars = await kamarModel.findAll({
-      attributes: {
-        exclude: ['tipeKamarIdTipeKamar']
-      },
-      include: {
-        model: tipe_kamarModel,
-        attributes: ['harga']
-      }
-    })
-    return response.json({
-        success: true,
-        data: kamars,
-        message: 'All kamar have been loaded'
-    })
+  let kamars = await kamarModel.findAll({
+    attributes: ['id_kamar', 'id_tipe_kamar', 'nomor_kamar'],
+    include: {
+      model: tipe_kamarModel,
+      attributes: ['harga', 'id_tipe_kamar', 'nama_tipe_kamar', 'deskripsi', 'foto'],
+      on: sequelize.literal('kamar.id_tipe_kamar = tipe_kamar.id_tipe_kamar')
+    },
+    group: ['kamar.id_kamar']
+  });
+
+  return response.json({
+    success: true,
+    data: kamars,
+    message: 'All kamar have been loaded'
+  });
 }
 
 // find kamar
 exports.findKamar = async (request, response) => {
-    let keyword = request.body.keyword
-    console.log(keyword)
-
-    let kamars = await kamarModel.findOne({
-    where : {
-        [Op.or] : [
-            { nomor_kamar : {[Op.substring] : keyword}},
-        ]
-    },
-    attributes: {
-      exclude: ['tipeKamarIdTipeKamar']
-    }
-})
-    return response.json({
-        success: true,
-        data: kamars,
-        message: 'All kamar have been loaded'
-    })
-}
+  let keyword = request.body.keyword
+    let kamars = await kamarModel.findAll({
+   where : {
+          [Op.or] : [
+              { nomor_kamar : {[Op.substring] : keyword}},
+          ]
+      },
+      attributes: ['id_kamar', 'id_tipe_kamar', 'nomor_kamar'],
+      include: {
+        model: tipe_kamarModel,
+        attributes: ['harga', 'id_tipe_kamar', 'nama_tipe_kamar', 'deskripsi', 'foto'],
+        on: sequelize.literal('kamar.id_tipe_kamar = tipe_kamar.id_tipe_kamar')
+      },
+      group: ['kamar.id_kamar']
+    });
+    
+      return response.json({
+          success: true,
+          data: kamars,
+          message: 'All kamar have been loaded'
+      })
+  }
 
 // add kamar
 exports.addKamar = async (request, response) => {
@@ -98,6 +103,7 @@ exports.addKamar = async (request, response) => {
 exports.updateKamar = (request, response) => {
     let dataKamar = {
         nomor_kamar : request.body.nomor_kamar,
+        id_tipe_kamar: request.body.id_tipe_kamar
     }
     let id_kamar = request.params.id_kamar
     kamarModel

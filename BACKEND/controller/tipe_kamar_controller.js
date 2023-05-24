@@ -28,10 +28,10 @@ exports.getAllTipekamar = async (request, response) => {
 
 //find tipe kamar using keyword
 exports.findTipekamar = async (request, response) => {
-    let keyword = request.params.keyword
+    let keyword = request.body.keyword
     console.log(keyword)
 
-    let tipe_kamars = await tipe_kamarModel.findOne({
+    let tipe_kamars = await tipe_kamarModel.findAll({
     where : {
         [Op.or] : [
             { nama_tipe_kamar : {[Op.substring] : keyword}},
@@ -95,7 +95,6 @@ exports.updateTipekamar = async (request, response) => {
             nama_tipe_kamar : request.body.nama_tipe_kamar,
             harga : request.body.harga,
             deskripsi : request.body.deskripsi,
-            foto : request.file.filename
         }
         if (request.file) {
             const selectedTipekamar = await tipe_kamarModel.findOne({

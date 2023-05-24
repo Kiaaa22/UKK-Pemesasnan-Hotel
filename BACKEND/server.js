@@ -14,6 +14,9 @@ const kamarRoute = require(`./routes/kamar_route`)
 const pemesananRoute = require('./routes/pemesanan_route')
 
 app.use(express.static(__dirname))
+app.use(express.static("foto_tipe_kamar"))
+app.use(express.static("foto"))
+
 
 app.use("/user", userRoute)
 app.use('/tipe_kamar', tipe_kamarRoute)

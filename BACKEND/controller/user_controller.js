@@ -14,6 +14,7 @@ app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({ extended: false }))
 
 const jsonwebtoken = require('jsonwebtoken')
+const { sequelize } = require('../models/index')
 const SECRET_KEY = 'secretcode'
 
 //login
@@ -61,7 +62,9 @@ exports.login = async (request, response) => {
 
 //get all user
 exports.getAllUser = async (request, response) => {
-  let users = await userModel.findAll()
+  let users = await userModel.findAll({
+    attributes: ['id_user', 'nama_user', 'foto', 'email', 'password', 'role'],
+  });
   return response.json({
     success: true,
     data: users,
@@ -71,14 +74,14 @@ exports.getAllUser = async (request, response) => {
 
 //find user using keyword
 exports.findUser = async (request, response) => {
-  let keyword = request.params.nama_user
+  let keyword = request.body.nama_user
   console.log(keyword)
 
-  let users = await userModel.findOne({
+  let users = await userModel.findAll({
+    attributes: ['id_user', 'nama_user', 'foto', 'email', 'password', 'role'],
     where: {
       [Op.or]: [
-        { nama_user: { [Op.substring]: keyword } },
-        { email: { [Op.substring]: keyword } },
+        { nama_user: { [Op.substring]: keyword } }
       ],
     },
   })
@@ -135,9 +138,9 @@ exports.updateUser = (request, response) => {
     let id_user = request.params.id_user
     const user = {
       nama_user: request.body.nama_user,
-      foto: request.file.filename,
       email: request.body.email,
       password: request.body.password,
+      role: request.body.role
     }
     if (request.file) {
       const selectedUser = await userModel.findOne({

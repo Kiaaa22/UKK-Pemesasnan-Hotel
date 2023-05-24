@@ -14,8 +14,8 @@ function App() {
       <Routes>
         <Route path="/" element={<Login />} exact></Route>
         <Route path="/dashboard" element={<Dashboard />}></Route>
-        <Route path="/typeroom" element={<TypeRoom />}></Route>
-        <Route path="/room" element={<Room />}></Route>
+        <Route path="/tipe_kamar" element={<TypeRoom />}></Route>
+        <Route path="/kamar" element={<Room />}></Route>
         <Route path="/user" element={<User />}></Route>
         <Route path="/historytransaksi" element={<HistoryTransaksi />}></Route>
 

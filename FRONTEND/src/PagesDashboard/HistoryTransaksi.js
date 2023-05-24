@@ -2,7 +2,7 @@ import React from 'react'
 import Sidebar from '../Components/Sidebar'
 import Header from '../Components/Header';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencilSquare, faSearch } from "@fortawesome/free-solid-svg-icons";
+import { faPencilSquare, faSearch, faPlus } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios"
 import $ from "jquery";
 import moment from 'moment';
@@ -11,20 +11,21 @@ export default class HistoryTransaksi extends React.Component {
     constructor() {
         super()
         this.state = {
-            booking: [],
-            id_booking: "",
+            pemesanan: [],
+            user: [],
+            tipe_kamar: [],
+            id_pemesanan: "",
             id_user: "",
-            id_customer: "",
-            id_room_type: "",
-            booking_number: "",
-            name_customer: "",
-            email: "",
-            booking_date: "",
-            check_in_date: "",
-            check_out_date: "",
-            guest_name: "",
-            total_room: "",
-            booking_status: "",
+            id_tipe_kamar: "",
+            nomor_pemesanan: "",
+            nama_pemesanan: "",
+            email_pemesanan: "",
+            tgl_pemesanan: "",
+            tgl_check_in: "",
+            tgl_check_out: "",
+            nama_tamu: "",
+            jumlah_kamar: "",
+            status_pemesanan: "",
             role: "",
             token: "",
             action: "",
@@ -54,39 +55,82 @@ export default class HistoryTransaksi extends React.Component {
 
     handleChange = (e) => {
         this.setState({
-            [e.target.name]: e.target.value
+            [e.target.value]: e.target.value
         })
     }
 
+    handleChangeStatus = (e) => {
+        this.setState({
+            status_pemesanan: e.target.value
+        })
+        console.log(this.state.status_pemesanan);
+        console.log(this.state.id_pemesanan);
+    }
+
     handleClose = () => {
-        $("#modal_booking").hide()
+        $("#modal_pemesanan").hide()
     }
 
     handleEditStatus = (item) => {
-        $("#modal_booking").show()
+        $("#modal_pemesanan").show()
         this.setState({
-            id_booking: item.id_booking,
-            booking_status: item.booking_status,
+            id_pemesanan: item.id,
+            status_pemesanan: item.status_pemesanan,
             action: "update"
+        })
+        console.log(this.state.id_pemesanan);
+
+    }
+
+    handleAdd = () => {
+        $("#modal_pemesanan").show(
+            this.setState({
+                id_pemesanan: "",
+                id_tipe_kamar: "",
+                nomor_pemesanan: "",
+                nama_pemesanan: "",
+                email_pemesanan: "",
+                tgl_pemesanan: "",
+                tgl_check_in: "",
+                tgl_check_out: "",
+                nama_tamu: "",
+                //jumlah_kamar: "",
+                status_pemesanan: "",
+                
+                action: "insert"
+            })
+        )
+    }
+
+    handleEdit = (item) => {
+        $("#modal_pemesanan").show()
+        this.setState({
+            id_pemesanan:item.id,
+            status_pemesanan: item.status_pemesanan,
         })
     }
 
     handleSave = (e) => {
         e.preventDefault()
-
+        console.log(this.state.id_pemesanan);
         let form = {
-            id_booking: this.state.id_booking,
-            booking_status: this.state.booking_status
+            status_pemesanan: this.state.status_pemesanan
         }
         if (this.state.action === "update") {
-            let url = "http://localhost:8080/booking/update/status/" + this.state.id_booking
-            axios.put(url, form, this.headerConfig())
-                .then(response => {
-                    this.getBooking()
+            let url = `http://localhost:8000/pemesanan/update/${this.state.id_pemesanan}`
+            axios
+                .put(url, form, this.headerConfig())
+                .then((response) => {
+                    this.getPemesanan()
+                    this.getTipe_kamar()
+                    this.getUser()
                     this.handleClose()
                 })
                 .catch(error => {
-                    console.log(error)
+                    console.log("error add data", error.response.status)
+                    if (error.response.status === 500) {
+                        window.alert("Hayo gabisa tambah data");
+                    }
                 })
 
         }
@@ -97,12 +141,13 @@ export default class HistoryTransaksi extends React.Component {
         let data = {
             keyword: this.state.keyword,
         }
-        let url = "http://localhost:8080/booking/find/filter"
-        axios.post(url, data)
+        let url = `http://localhost:8000/pemesanan/find`
+        axios
+            .post(url, data, this.headerConfig())
             .then(response => {
                 if (response.status === 200) {
                     this.setState({
-                        booking: response.data.data
+                        pemesanan: response.data.data
                     })
                 } else {
                     alert(response.data.message)
@@ -115,12 +160,48 @@ export default class HistoryTransaksi extends React.Component {
             })
     }
 
-    getBooking = () => {
-        let url = "http://localhost:8080/booking"
-        axios.get(url)
+    
+
+    getUser = () => {
+        let url = "http://localhost:8000/user/"
+        axios
+            .get(url, this.headerConfig())
             .then(response => {
+
                 this.setState({
-                    booking: response.data.data
+                    user: response.data.data
+                })
+                console.log(response.data.data)
+            })
+            .catch((error) => {
+                console.log(error)
+            })
+    }
+
+    getTipe_kamar = () => {
+        let url = "http://localhost:8000/tipe_kamar/"
+        axios
+            .get(url, this.headerConfig())
+            .then(response => {
+
+                this.setState({
+                    tipe_kamar: response.data.data
+                })
+                console.log(response.data.data)
+            })
+            .catch((error) => {
+                console.log(error)
+            })
+    }
+
+    getPemesanan = () => {
+        let url = "http://localhost:8000/pemesanan/"
+        axios
+            .get(url, this.headerConfig())
+            .then(response => {
+
+                this.setState({
+                    pemesanan: response.data.data
                 })
                 console.log(response.data.data)
             })
@@ -138,7 +219,7 @@ export default class HistoryTransaksi extends React.Component {
     }
 
     componentDidMount() {
-        this.getBooking()
+        this.getPemesanan()
         this.checkRole()
     }
 
@@ -151,7 +232,7 @@ export default class HistoryTransaksi extends React.Component {
                     <div class="main-content flex flex-col flex-grow p-4">
 
                         <h1 class="font-bold text-xl text-black-700">Daftar History Transaksi Customer</h1>
-                        <p class="text-gray-700">For History Booking Room</p>
+                        <p class="text-gray-700">For History Pemesanan Room</p>
 
                         <div className="flex mt-2 flex-row-reverse">
                             <div className="flex rounded w-1/3 mr-4">
@@ -166,6 +247,11 @@ export default class HistoryTransaksi extends React.Component {
                                 <button className="w-1/3 ml-2 px-4 text-white bg-blue-600 rounded hover:bg-blue-700" onClick={this._handleFilter}>
                                     <FontAwesomeIcon icon={faSearch} size="" />
                                 </button>
+                                {this.state.role === "resepsionis" && (
+                                        <button className="w-1/5 ml-2 px-4 text-white bg-blue-600 rounded hover:bg-blue-700" onClick={() => this.handleAdd()}>
+                                            <FontAwesomeIcon icon={faPlus} size=''/> Add
+                                        </button>
+                                    ) }
                             </div>
                         </div>
 
@@ -180,7 +266,7 @@ export default class HistoryTransaksi extends React.Component {
                                                         scope="col"
                                                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                                                     >
-                                                        Booking Number
+                                                        Pemesanan Number
                                                     </th>
                                                     <th
                                                         scope="col"
@@ -204,7 +290,7 @@ export default class HistoryTransaksi extends React.Component {
                                                         scope="col"
                                                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                                                     >
-                                                        Booking
+                                                        Pemesanan
                                                     </th>
                                                     <th
                                                         scope="col"
@@ -236,61 +322,61 @@ export default class HistoryTransaksi extends React.Component {
                                                 </tr>
                                             </thead>
                                             <tbody className="bg-white divide-y divide-gray-200">
-                                                {this.state.booking.map((item, index) => {
+                                                {this.state.pemesanan.map((item, index) => {
                                                     return (
                                                         <tr key={index}>
                                                             <td className="px-6 py-4 whitespace-nowrap">
                                                                 <div className="flex items-center">
                                                                     <div className="text-sm font-medium text-gray-900">
-                                                                        {item.booking_number}
+                                                                        {item.nomor_pemesanan}
                                                                     </div>
                                                                 </div>
                                                             </td>
                                                             <td className="px-6 py-4 whitespace-nowrap">
                                                                 <div className="text-sm text-gray-900">
-                                                                    {item.name_customer}
+                                                                    {item.nama_pemesanan}
                                                                 </div>
                                                             </td>
 
                                                             <td className="px-6 py-4 whitespace-nowrap">
                                                                 <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                                    {item.room_type.name_room_type}
+                                                                    {item.tipe_kamar?.nama_tipe_kamar}
                                                                 </span>
                                                             </td>
                                                             <td className="px-6 py-4 whitespace-nowrap">
                                                                 <div className="text-sm text-gray-900">
-                                                                    {item.total_room}
+                                                                    {item.jumlah_kamar}
                                                                 </div>
                                                             </td>
                                                             <td className="px-6 py-4 whitespace-nowrap">
                                                                 <div className="text-sm text-gray-900">
-                                                                    {moment(item.booking_date).format('DD-MM-YYYY')}
+                                                                    {moment(item.tgl_pemesanan).format('DD-MM-YYYY')}
                                                                 </div>
                                                             </td>
                                                             <td className="px-6 py-4 whitespace-nowrap">
                                                                 <div className="text-sm text-gray-900">
-                                                                    {moment(item.check_in_date).format('DD-MM-YYYY')}
+                                                                    {moment(item.tgl_check_in).format('DD-MM-YYYY')}
                                                                 </div>
                                                             </td>
                                                             <td className="px-6 py-4 whitespace-nowrap">
                                                                 <div className="text-sm text-gray-900">
-                                                                    {moment(item.check_out_date).format('DD-MM-YYYY')}
+                                                                    {moment(item.tgl_check_out).format('DD-MM-YYYY')}
                                                                 </div>
                                                             </td>
                                                             <td className="px-6 py-4 whitespace-nowrap">
-                                                                {item.booking_status === "baru" &&
+                                                                {item.status_pemesanan === "baru" &&
                                                                     <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800">
-                                                                        {item.booking_status}
+                                                                        {item.status_pemesanan}
                                                                     </span>
                                                                 }
-                                                                {item.booking_status === "check_in" &&
+                                                                {item.status_pemesanan === "check_in" &&
                                                                     <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                                                        {item.booking_status}
+                                                                        {item.status_pemesanan}
                                                                     </span>
                                                                 }
-                                                                {item.booking_status === "check_out" &&
+                                                                {item.status_pemesanan === "check_out" &&
                                                                     <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                                                        {item.booking_status}
+                                                                        {item.status_pemesanan}
                                                                     </span>
                                                                 }
 
@@ -319,38 +405,240 @@ export default class HistoryTransaksi extends React.Component {
                     </div>
                     <footer class="footer px-4 py-2">
                         <div class="footer-content">
-                            <p class="text-sm text-gray-600 text-center">© Brandname 2023. All rights reserved. <a href="https://twitter.com/iaminos">by Erairris</a></p>
+                            <p class="text-sm text-gray-600 text-center">REDFlag 2023. All rights reserved.</p>
                         </div>
                     </footer>
                 </main>
 
-                {/* Modal Form */}
-                <div id="modal_booking" tabindex="-1" aria-hidden="true" class="overflow-x-auto fixed top-0 left-0 right-0 z-50 hidden w-full p-4 md:inset-0 h-modal md:h-full bg-tranparent bg-black bg-opacity-50">
-                    <div class="flex lg:h-auto w-auto justify-center ">
-                        <div class="relative bg-white rounded-lg shadow dark:bg-white w-1/3">
-                            <button type="button" class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white" onClick={() => this.handleClose()}>
-                                <svg aria-hidden="true" class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>
-                                <span class="sr-only">Tutup modal</span>
-                            </button>
-                            <div class="px-6 py-6 lg:px-8">
-                                <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-black">Edit Status Booking </h3>
-                                <form class="space-y-6" onSubmit={(event) => this.handleSave(event)}>
-                                    <div>
-                                        <label for="role" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-800">Status</label>
-                                        <select className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-gray-800 block w-full p-2.5 dark:bg-white dark:border-gray-500 dark:placeholder-gray-400 dark:text-black" placeholder="Pilihan status" name="booking_status" value={this.state.booking_status} onChange={this.handleChange} required>
-                                            <option value="">Pilih Status</option>
-                                            <option value="baru">Baru</option>
-                                            <option value="check_in">Check In</option>
-                                            <option value="check_out">Check Out</option>
-                                        </select>
-                                    </div>
-                                    <button type="submit" class="w-full text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">Simpan</button>
-                                </form>
-                            </div>
-                        </div>
-                    </div>
-                </div>
+        {/* Modal Form */}
+        <div
+          id="modal_pemesanan"
+          tabindex="-1"
+          aria-hidden="true"
+          class="overflow-x-auto fixed top-0 left-0 right-0 z-50 hidden w-full p-4 md:inset-0 h-modal md:h-full bg-tranparent bg-black bg-opacity-50"
+        >
+          <div class="flex lg:h-auto w-auto justify-center ">
+            <div class="relative bg-white rounded-lg shadow dark:bg-white w-1/3">
+              <button
+                type="button"
+                class="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white"
+                onClick={() => this.handleClose()}
+              >
+                <svg
+                  aria-hidden="true"
+                  class="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clip-rule="evenodd"
+                  ></path>
+                </svg>
+                <span class="sr-only">Tutup modal</span>
+              </button>
+              <div class="px-6 py-6 lg:px-8">
+                <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-black">
+                  Edit Status Booking{" "}
+                </h3>
+                <form
+                  class="space-y-6"
+                  onSubmit={(event) => this.handleSave(event)}
+                >
+                  <div>
+                    <label
+                      for="status_pemesanan"
+                      class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-800"
+                    >
+                      Status
+                    </label>
+                    <select
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-gray-800 block w-full p-2.5 dark:bg-white dark:border-gray-500 dark:placeholder-gray-400 dark:text-black"
+                      placeholder="Pilihan status"
+                      name="status_pemesanan"
+                      value={this.state.status_pemesanan}
+                      onChange={this.handleChangeStatus}
+                      required
+                    >
+                      <option value="">Pilih Status</option>
+                      <option value="baru">Baru</option>
+                      <option value="check_in">Check In</option>
+                      <option value="check_out">Check Out</option>
+                    </select>
+                  </div>
+                  <button
+                    type="submit"
+                    class="w-full text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+                  >
+                    Simpan
+                  </button>
+                </form>
+              </div>
             </div>
-        );
-    }
+          </div>
+        </div>
+
+        {/* Modal Form */}
+        <div
+          id="modal_pemesanan"
+          tabindex="-1"
+          aria-hidden="true"
+          className="overflow-x-auto fixed top-0 left-0 right-0 z-50 hidden w-full p-4 md:inset-0 h-modal md:h-full bg-tranparent bg-black bg-opacity-50"
+        >
+          <div className="flex lg:h-auto w-auto justify-center ">
+            <div className="relative bg-white rounded-lg shadow dark:bg-white w-1/3">
+              <button
+                type="button"
+                className="absolute top-3 right-2.5 text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-800 dark:hover:text-white"
+                onClick={() => this.handleClose()}
+              >
+                <svg
+                  aria-hidden="true"
+                  className="w-5 h-5"
+                  fill="currentColor"
+                  viewBox="0 0 20 20"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                    clip-rule="evenodd"
+                  ></path>
+                </svg>
+                <span className="sr-only">Tutup modal</span>
+              </button>
+              <div className="px-6 py-6 lg:px-8">
+                <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-black">
+                  {this.state.action === "insert" ? "Add" : "Edit"} Pemesanan
+                </h3>
+                <form
+                  className="space-y-6"
+                  onSubmit={(event) => this.handleSave(event)}
+                >
+                  <div>
+                    <label
+                      for="nomor_kamar"
+                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-800"
+                    >
+                      Nomor Kamar
+                    </label>
+                    <input
+                      type="text"
+                      name="nomor_kamar"
+                      id="nomor_kamar"
+                      value={this.state.nomor_kamar}
+                      onChange={this.handleChange}
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-gray-800 block w-full p-2.5 dark:bg-white dark:border-gray-500 dark:placeholder-gray-400 dark:text-gray-800"
+                      placeholder="Masukkan nomor kamar"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label
+                      for="nama_pemesanan"
+                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-800"
+                    >
+                      Nama pemesan
+                    </label>
+                    <input
+                      type="text"
+                      name="nama_pemesanan"
+                      id="nama_pemesanan"
+                      value={this.state.nama_pemesanan}
+                      onChange={this.handleChange}
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-gray-800 block w-full p-2.5 dark:bg-white dark:border-gray-500 dark:placeholder-gray-400 dark:text-gray-800"
+                      placeholder="Masukkan nama pemesan"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label
+                      for="deskripsi"
+                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-800"
+                    >
+                      email pemesan
+                    </label>
+                    <input
+                      type="email"
+                      name="email_pemesanan"
+                      id="email_pemesanan"
+                      value={this.state.email_pemesanan}
+                      onChange={this.handleChange}
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-gray-800 block w-full p-2.5 dark:bg-white dark:border-gray-500 dark:placeholder-gray-400 dark:text-gray-800"
+                      placeholder="Masukkan email pemesan"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label
+                      htmlFor="check_in"
+                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-800"
+                    >
+                      Tanggal Check-in
+                    </label>
+                    <input
+                      type="date"
+                      name="tgl_check_in"
+                      id="tgl_check_in"
+                      value={this.state.tgl_check_in}
+                      onChange={this.handleChange}
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-gray-800 block w-full p-2.5 dark:bg-white dark:border-gray-500 dark:placeholder-gray-400 dark:text-gray-800"
+                      placeholder="Masukkan tanggal checkin"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      for="checkout"
+                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-800"
+                    >
+                      tanggal checkout
+                    </label>
+                    <input
+                      type="date"
+                      name="tgl_check_out"
+                      id="tgl_check_out"
+                      value={this.state.tgl_check_out}
+                      onChange={this.handleChange}
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-gray-800 block w-full p-2.5 dark:bg-white dark:border-gray-500 dark:placeholder-gray-400 dark:text-gray-800"
+                      placeholder="Masukkan tanggal checkout"
+                    />
+                  </div>
+
+                  <div>
+                    <label
+                      for="deskripsi"
+                      className="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-800"
+                    >
+                      nama tamu
+                    </label>
+                    <input
+                      type="text"
+                      name="nama_tamu"
+                      id="nama_tamu"
+                      value={this.state.nama_tamu}
+                      onChange={this.handleChange}
+                      className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-gray-800 block w-full p-2.5 dark:bg-white dark:border-gray-500 dark:placeholder-gray-400 dark:text-gray-800"
+                      placeholder="Masukkan nama tamu"
+                    />
+                  </div>
+
+                  {this.state.errors && <div>Error : {this.state.errors}</div>}
+
+                  <button
+                    type="submit"
+                    className="w-full text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2"
+                  >
+                    Simpan
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 }

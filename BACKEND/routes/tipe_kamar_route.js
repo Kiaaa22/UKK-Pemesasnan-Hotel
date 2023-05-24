@@ -9,7 +9,7 @@ const auth = require('../auth/auth')
 
 app.get("/", auth.authVerify, tipe_kamarController.getAllTipekamar)
 app.post("/add", auth.authVerify, tipe_kamarController.addTipekamar)
-app.get("/find/:keyword", auth.authVerify, tipe_kamarController.findTipekamar)
+app.post("/find", auth.authVerify, tipe_kamarController.findTipekamar)
 app.put("/update/:id_tipe_kamar", auth.authVerify, tipe_kamarController.updateTipekamar)
 app.delete("/delete/:id_tipe_kamar", auth.authVerify, tipe_kamarController.deleteTipekamar)
 module.exports = app

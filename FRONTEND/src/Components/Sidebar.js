@@ -1,6 +1,6 @@
 import React from 'react'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faHome, faBed, faUsers, faUser, faHistory, faList } from "@fortawesome/free-solid-svg-icons";
+import { faHome, faBed, faUser, faHistory, faList } from "@fortawesome/free-solid-svg-icons";
 
 export default class Sidebar extends React.Component {
     constructor() {
@@ -16,18 +16,18 @@ export default class Sidebar extends React.Component {
         if (window.confirm("Are you sure to logout")) {
             window.location = '/'
             localStorage.clear()
-            localStorage.removeItem("id")
+            localStorage.removeItem("id_user")
             localStorage.removeItem("token")
             localStorage.removeItem("role")
             localStorage.removeItem("email")
-            localStorage.removeItem("username")
+            localStorage.removeItem("nama_user")
         }
     }
 
     checkRole = () => {
         if (this.state.role !== "admin" && this.state.role !== "resepsionis") {
             localStorage.clear()
-            window.alert("You're not admin or resepsionis!")
+            window.alert("LOH SIAPA KAMU WE")
             window.location = '/'
         }
     }
@@ -45,8 +45,8 @@ export default class Sidebar extends React.Component {
                 <div class="sidebar-header flex items-center justify-center py-4">
                     <div class="inline-flex">
                         <a href="#" class="inline-flex flex-row items-center">
-                            <img src="/assets/logo.png" class="w-12 h-12 text-red-400" fill="currentColor" viewBox="0 0 20 20" />
-                            <span class="leading-10 text-blue-600 text-2xl font-bold ml-1 uppercase">REDFlag</span>
+                            <img src="/assets/logo.png" class="w-12 h-12 text-red-400" fill="currentColor" viewBox="0 0 20 20" alt='' />
+                            <span class="leading-10 text-red-400 text-2xl font-bold ml-1 uppercase">REDFlag</span>
                         </a>
                     </div>
                 </div>
@@ -55,10 +55,10 @@ export default class Sidebar extends React.Component {
                         <li class="my-px">
                             <a
                                 href="/dashboard"
-                                class="flex flex-row items-center h-10 px-3 rounded-lg text-blue-600 hover:bg-blue-100 hover:text-blue-800 font-base"
+                                class="flex flex-row items-center h-10 px-3 rounded-lg text-red-400 hover:bg-blue-100 hover:text-red-600 font-base"
                             >
                                 <span class="mr-2 flex items-center justify-center text-lg text-gray-400">
-                                    <FontAwesomeIcon icon={faHome} color="blue" />
+                                    <FontAwesomeIcon icon={faHome} color="red" />
                                 </span>
                                 <span class="ml-3">Dashboard</span>
                             </a>
@@ -66,10 +66,10 @@ export default class Sidebar extends React.Component {
                         <li class="my-px">
                             <a
                                 href="/tipe_kamar"
-                                class="flex flex-row items-center h-10 px-3 rounded-lg text-blue-600 hover:bg-blue-100 hover:text-blue-800 font-base"
+                                class="flex flex-row items-center h-10 px-3 rounded-lg text-red-400 hover:bg-blue-100 hover:text-red-600 font-base"
                             >
                                 <span class="mr-2 flex items-center justify-center text-lg text-gray-400">
-                                    <FontAwesomeIcon icon={faBed} color="blue" />
+                                    <FontAwesomeIcon icon={faBed} color="red" />
                                 </span>
                                 <span class="ml-3">Tipe Kamar</span>
                             </a>
@@ -77,10 +77,10 @@ export default class Sidebar extends React.Component {
                         <li class="my-px">
                             <a
                                 href="/kamar"
-                                class="flex flex-row items-center h-10 px-3 rounded-lg text-blue-600 hover:bg-blue-100 hover:text-blue-800 font-base"
+                                class="flex flex-row items-center h-10 px-3 rounded-lg text-red-400 hover:bg-blue-100 hover:text-red-600 font-base"
                             >
                                 <span class="mr-3 flex items-center justify-center text-lg text-gray-400">
-                                    <FontAwesomeIcon icon={faList} color="blue" />
+                                    <FontAwesomeIcon icon={faList} color="red" />
                                 </span>
                                 <span class="ml-3">Kamar</span>
                             </a>
@@ -88,10 +88,10 @@ export default class Sidebar extends React.Component {
                         <li class="my-px">
                             <a
                                 href="/user"
-                                class="flex flex-row items-center h-10 px-3 rounded-lg text-blue-600 hover:bg-blue-100 hover:text-blue-800 font-base"
+                                class="flex flex-row items-center h-10 px-3 rounded-lg text-red-400 hover:bg-blue-100 hover:text-red-600 font-base"
                             >
                                 <span class="mr-3 flex items-center justify-center text-lg text-gray-400">
-                                    <FontAwesomeIcon icon={faUser} color="blue" />
+                                    <FontAwesomeIcon icon={faUser} color="red" />
                                 </span>
                                 <span class="ml-4">User</span>
                             </a>
@@ -110,10 +110,10 @@ export default class Sidebar extends React.Component {
                         <li class="my-px">
                             <a
                                 href="/historytransaksi"
-                                class="flex flex-row items-center h-10 px-3 rounded-lg text-blue-600 hover:bg-blue-100 hover:text-blue-800 font-base"
+                                class="flex flex-row items-center h-10 px-3 rounded-lg text-red-400 hover:bg-blue-100 hover:text-red-600 font-base"
                             >
                                 <span class="mr-3 flex items-center justify-center text-lg text-gray-400">
-                                    <FontAwesomeIcon icon={faHistory} color="blue" />
+                                    <FontAwesomeIcon icon={faHistory} color="red" />
                                 </span>
                                 <span class="ml-3">History Transaksi</span>
                             </a>
@@ -121,7 +121,7 @@ export default class Sidebar extends React.Component {
                         <li class="my-px" onClick={() => this.logOut()}>
                             <a
                                 href="/"
-                                class="flex flex-row items-center h-10 px-3 rounded-lg text-blue-600 hover:bg-blue-100 hover:text-blue-800 mt-32"
+                                class="flex flex-row items-center h-10 px-3 rounded-lg text-red-400 hover:bg-blue-100 hover:text-red-600 mt-32"
                             >
                                 <span class="mr-3 flex items-center justify-center text-lg text-red-400">
                                     <svg

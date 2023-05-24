@@ -2,12 +2,7 @@ import React from "react";
 import Sidebar from "../Components/Sidebar";
 import Header from "../Components/Header";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-    faPlus,
-    faTrash,
-    faPencilSquare,
-    faSearch
-} from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faTrash, faPencilSquare, faSearch } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios"
 import $ from "jquery";
 
@@ -67,19 +62,22 @@ export default class User extends React.Component {
 
     _handleFilter = () => {
         let data = {
-            keyword: this.state.keyword,
+            nama_user: this.state.keyword,
         }
-        let url = "http://localhost:8000/user/find/filter"
-        axios.post(url, data)
-            .then(response => {
+        let url = `http://localhost:8000/user/find/`
+        axios
+            .post(url, data, this.headerConfig())
+            .then((response) => {
                 if (response.status === 200) {
                     this.setState({
                         user: response.data.data
                     })
+                    console.log(response.data.data);
+                    console.log(this.state.user);
                 } else {
                     alert(response.data.message)
                     this.setState({ message: response.data.message })
-
+                   console.log(response.data.message);
                 }
             })
             .catch(error => {
@@ -119,26 +117,38 @@ export default class User extends React.Component {
 
         let form = new FormData()
         form.append("id_user", this.state.id_user)
-        form.append("user_name", this.state.nama_user)
-        form.append("photo", this.state.photo)
+        form.append("nama_user", this.state.nama_user)
+        form.append("foto", this.state.foto)
         form.append("email", this.state.email)
         form.append("password", this.state.password)
         form.append("role", this.state.role)
 
-        let data = {
-            id_user: this.state.id_user,
-            nama_user: this.state.nama_user,
-            foto: this.state.foto,
-            email: this.state.email,
-            password: this.state.password,
-            role: this.state.role,
-        }
+        // let data = {
+        //     id_user: this.state.id_user,
+        //     nama_user: this.state.nama_user,
+        //     foto: this.state.foto,
+        //     email: this.state.email,
+        //     password: this.state.password,
+        //     role: this.state.role,
+        // }
 
         if (this.state.action === "insert") {
-            let url = "http://localhost:8000/user/add"
-            axios.post(url, form)
-                .then(response => {
+            let url = "http://localhost:8000/user/adduser"
+            axios
+                .post(url, form, this.headerConfig())
+                .then((response) => {
+                    if (response.data.code === 400) {
+                        return this.setState({errors : response.data.message})
+                    }
                     this.getUser()
+                    this.setState({
+                        id_user: "",
+                        nama_user: "",
+                        foto:"",
+                        email: "",
+                        password: "",
+                        role: "",
+                    })
                     this.handleClose()
                 })
                 .catch(error => {
@@ -150,21 +160,27 @@ export default class User extends React.Component {
         } else {
             let url = "http://localhost:8000/user/update/" + this.state.id_user
             axios.put(url, form, this.headerConfig())
-                .then(response => {
+                .then((response) => {
+                    if (response.data.success === false) {
+                        return this.setState({errors: response.data.message})
+                    }
                     this.getUser()
                     this.handleClose()
+                    this.setState({errors: ''})
                 })
                 .catch(error => {
                     console.log(error)
+                    this.setState({error : error})
                 })
 
         }
     }
 
-    handleDrop = (id) => {
-        let url = "http://localhost:8000/user/delete/" + id
+    handleDrop = (id_user) => {
+        let url = "http://localhost:8000/user/delete/" + id_user
         if (window.confirm("Betulan ni mau di apus ? ")) {
-            axios.delete(url, this.headerConfig())
+            axios
+                .delete(url, this.headerConfig())
                 .then(response => {
                     console.log(response.data.message)
                     this.getUser()
@@ -178,9 +194,9 @@ export default class User extends React.Component {
     }
 
     getUser = () => {
-        let url = "http://localhost:8000/user";
+        let url = "http://localhost:8000/user/";
         axios
-            .get(url)
+            .get(url,this.headerConfig())
             .then((response) => {
                 this.setState({
                     user: response.data.data,
@@ -295,7 +311,7 @@ export default class User extends React.Component {
                                                                 <div className="flex-shrink-0 h-10 w-10">
                                                                     <img
                                                                         className="h-10 w-10 rounded-full"
-                                                                        src={"http://localhost:8000/uploads/image/" + item.photo}
+                                                                        src={`http://localhost:8000/${item.foto}`}
                                                                         alt=""
                                                                     />
                                                                 </div>
@@ -303,7 +319,7 @@ export default class User extends React.Component {
                                                             <td className="px-6 py-4 whitespace-nowrap">
                                                                 <div className="flex items-center">
                                                                     <div className="text-sm font-medium text-gray-900">
-                                                                        {item.user_name}
+                                                                        {item.nama_user}
                                                                     </div>
                                                                 </div>
                                                             </td>
@@ -351,8 +367,7 @@ export default class User extends React.Component {
                     <footer class="footer px-4 py-2">
                         <div class="footer-content">
                             <p class="text-sm text-gray-600 text-center">
-                                © Brandname 2023. All rights reserved.{" "}
-                                <a href="https://twitter.com/iaminos">by Erairris</a>
+                                REDFlag 2023. All rights reserved.
                             </p>
                         </div>
                     </footer>
@@ -370,8 +385,8 @@ export default class User extends React.Component {
                                 <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-black">Edit User</h3>
                                 <form class="space-y-6" onSubmit={(event) => this.handleSave(event)}>
                                     <div>
-                                        <label for="user_name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-800">Username User</label>
-                                        <input type="text" name="user_name" id="user_name" value={this.state.user_name} onChange={this.handleChange} class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-gray-800 block w-full p-2.5 dark:bg-white dark:border-gray-500 dark:placeholder-gray-400 dark:text-gray-800" placeholder="Masukkan username user" required />
+                                        <label for="nama_user" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-800">Username User</label>
+                                        <input type="text" name="nama_user" id="nama_user" value={this.state.nama_user} onChange={this.handleChange} class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-gray-800 block w-full p-2.5 dark:bg-white dark:border-gray-500 dark:placeholder-gray-400 dark:text-gray-800" placeholder="Masukkan username user" required />
                                     </div>
                                     <div>
                                         <label for="email" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-800">Email User</label>
@@ -390,8 +405,8 @@ export default class User extends React.Component {
                                         </select>
                                     </div>
                                     <div>
-                                        <label for="photo" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-800">Photo User</label>
-                                        <input type="file" name="photo" id="photo" placeholder="Pilih photo user" onChange={this.handleFile} class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-800 focus:border-gray-800 block w-full px-2 dark:bg-white dark:border-gray-500 dark:placeholder-gray-400 dark:text-gray-800" required={this.state.action === "update" ? false : true} />
+                                        <label for="foto" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-800">Photo User</label>
+                                        <input type="file" name="foto" id="foto" placeholder="Pilih photo user" onChange={this.handleFile} class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-gray-800 focus:border-gray-800 block w-full px-2 dark:bg-white dark:border-gray-500 dark:placeholder-gray-400 dark:text-gray-800" required={this.state.action === "update" ? false : true} />
                                     </div>
 
                                     <button type="submit" class="w-full text-white bg-gradient-to-br from-purple-600 to-blue-500 hover:bg-gradient-to-bl focus:ring-4 focus:outline-none focus:ring-blue-300 dark:focus:ring-blue-800 font-medium rounded-lg text-sm px-5 py-2.5 text-center mr-2 mb-2">Simpan</button>

@@ -17,7 +17,7 @@ const tipe_kamar = require('../models/tipe_kamar')
 exports.getAllPemesanan = async (request, response) => {
   let pemesanans = await pemesananModel.findAll({
     attributes: {
-      exclude: ['id', 'tipeKamarIdTipeKamar', 'userIdUser'],
+      exclude: [ 'tipeKamarIdTipeKamar', 'userIdUser'],
     },
   })
   return response.json({
