@@ -1,414 +1,468 @@
-import React from 'react'
+import React, {useState} from 'react'
 import Sidebar from '../Components/Sidebar'
-import Header from '../Components/Header';
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPencilSquare, faSearch, faPlus } from "@fortawesome/free-solid-svg-icons";
-import axios from "axios"
-import $ from "jquery";
-import moment from 'moment';
+import Header from '../Components/Header'
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import {
+  faPencilSquare,
+  faSearch,
+  faPlus,
+} from '@fortawesome/free-solid-svg-icons'
+import axios from 'axios'
+import $ from 'jquery'
+import moment from 'moment'
 
 export default class HistoryTransaksi extends React.Component {
-    constructor() {
-        super()
-        this.state = {
-            pemesanan: [],
-            user: [],
-            tipe_kamar: [],
-            id_pemesanan: "",
-            id_user: "",
-            id_tipe_kamar: "",
-            nomor_pemesanan: "",
-            nama_pemesanan: "",
-            email_pemesanan: "",
-            tgl_pemesanan: "",
-            tgl_check_in: "",
-            tgl_check_out: "",
-            nama_tamu: "",
-            jumlah_kamar: "",
-            status_pemesanan: "",
-            role: "",
-            token: "",
-            action: "",
-            keyword: ""
-
-        }
-
-        if (localStorage.getItem("token")) {
-            if (localStorage.getItem("role") === "admin" ||
-                localStorage.getItem("role") === "resepsionis") {
-                this.state.token = localStorage.getItem("token")
-                this.state.role = localStorage.getItem("role")
-            } else {
-                window.alert("LOH SIAPA KAMU WE")
-                window.location = "/"
-            }
-        }
-
+ 
+  constructor() {
+    super()
+    this.state = {
+      pemesanan: [],
+      user: [],
+      tipe_kamar: [],
+      id_pemesanan: '',
+      id_user: '',
+      id_tipe_kamar: '',
+      nomor_pemesanan: '',
+      nama_pemesanan: '',
+      email_pemesanan: '',
+      tgl_pemesanan: '',
+      tgl_check_in: '',
+      tgl_check_out: '',
+      nama_tamu: '',
+      jumlah_kamar: '',
+      status_pemesanan: '',
+      role: '',
+      token: '',
+      action: '',
+      keyword: '',
     }
 
-    headerConfig = () => {
-        let header = {
-            headers: { Authorization: `Bearer ${this.state.token}` }
-        }
-        return header;
+    if (localStorage.getItem('token')) {
+      if (
+        localStorage.getItem('role') === 'admin' ||
+        localStorage.getItem('role') === 'resepsionis'
+      ) {
+        this.state.token = localStorage.getItem('token')
+        this.state.role = localStorage.getItem('role')
+      } else {
+        window.alert('LOH SIAPA KAMU WE')
+        window.location = '/'
+      }
     }
+  }
 
-    handleChange = (e) => {
-        this.setState({
-            [e.target.value]: e.target.value
+  headerConfig = () => {
+    let header = {
+      headers: { Authorization: `Bearer ${this.state.token}` },
+    }
+    return header
+  }
+
+  handleChange = (e) => {
+    this.setState({
+      [e.target.name]: e.target.value,
+    })
+  }
+
+  handleChangeStatus = (e) => {
+    this.setState({
+      status_pemesanan: e.target.value,
+    })
+    console.log(this.state.status_pemesanan)
+    console.log(this.state.id_pemesanan)
+  }
+
+  handleClose = () => {
+    $('#modal_pemesanan').hide()
+  }
+
+  handleEditStatus = (item) => {
+    $('#modal_pemesanan').show()
+    this.setState({
+      id_pemesanan: item.id,
+      status_pemesanan: item.status_pemesanan,
+      action: 'update',
+    })
+    console.log(this.state.id_pemesanan)
+  }
+
+  handleAdd = () => {
+    $('#modal_booking').show(
+      this.setState({
+        id: '',
+        id_tipe_kamar: '',
+        nomor_pemesanan: '',
+        nama_pemesanan: '',
+        email_pemesanan: '',
+        tgl_pemesanan: '',
+        tgl_check_in: '',
+        tgl_check_out: '',
+        nama_tamu: '',
+        //jumlah_kamar: "",
+        status_pemesanan: '',
+
+        action: 'insert',
+      }),
+    )
+  }
+
+  handleEdit = (item) => {
+    $('#modal_pemesanan').show()
+    this.setState({
+      id_pemesanan: item.id,
+      status_pemesanan: item.status_pemesanan,
+    })
+  }
+
+  handleSave = (e) => {
+    e.preventDefault()
+
+    console.log(this.state.id_pemesanan)
+    let form = {
+      id: this.state.id,
+      id_tipe_kamar: this.state.id_tipe_kamar,
+      nomor_pemesanan: this.state.nomor_pemesanan,
+      nama_pemesanan: this.state.nama_pemesanan,
+      email_pemesanan: this.state.email_pemesanan,
+      tgl_pemesanan: this.state.tgl_pemesanan,
+      tgl_check_in: this.state.tgl_check_in,
+      tgl_check_out: this.state.tgl_check_out,
+      nama_tamu: this.state.nama_tamu,
+      //jumlah_kamar: "",
+      status_pemesanan: this.state.status_pemesanan,
+    }
+    if (this.state.action === 'insert') {
+      let url = 'http://localhost:8000/pemesanan/add'
+      axios
+        .post(url, form, this.headerConfig())
+        .then((response) => {
+          if (response.data.code === 400) {
+            return this.setState({ errors: response.data.message })
+          }
+          this.getPemesanan()
+          this.getTipe_kamar()
+          this.setState({
+            id: '',
+            id_tipe_kamar: '',
+            nomor_pemesanan: '',
+            nama_pemesanan: '',
+            email_pemesanan: '',
+            tgl_pemesanan: '',
+            tgl_check_in: '',
+            tgl_check_out: '',
+            nama_tamu: '',
+            //jumlah_kamar: "",
+            status_pemesanan: '',
+          })
+          this.handleClose()
+        })
+        .catch((error) => {
+          console.log('error add data', error.response.status)
+          if (error.response.status === 500) {
+            window.alert('Hayo gabisa tambah data')
+          }
+        })
+    } else {
+      let url = `http://localhost:8000/pemesanan/update/` + this.state.id
+      axios
+        .put(url, form, this.headerConfig())
+        .then((response) => {
+          this.getPemesanan()
+          this.getTipe_kamar()
+          this.getUser()
+          this.handleClose()
+        })
+        .catch((error) => {
+          console.log('error add data', error.response.status)
+          if (error.response.status === 500) {
+            window.alert('Hayo gabisa tambah data')
+          }
         })
     }
+  }
 
-    handleChangeStatus = (e) => {
+  _handleFilter = () => {
+    let data = {
+      keyword: this.state.keyword,
+    }
+    let url = `http://localhost:8000/pemesanan/find`
+    axios
+      .post(url, data, this.headerConfig())
+      .then((response) => {
+        if (response.status === 200) {
+          this.setState({
+            pemesanan: response.data.data,
+          })
+        } else {
+          alert(response.data.message)
+          this.setState({ message: response.data.message })
+        }
+      })
+      .catch((error) => {
+        console.log('error', error.response.status)
+      })
+  }
+
+  getUser = () => {
+    let url = 'http://localhost:8000/user/'
+    axios
+      .get(url, this.headerConfig())
+      .then((response) => {
         this.setState({
-            status_pemesanan: e.target.value
+          user: response.data.data,
         })
-        console.log(this.state.status_pemesanan);
-        console.log(this.state.id_pemesanan);
-    }
+        console.log(response.data.data)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  }
 
-    handleClose = () => {
-        $("#modal_pemesanan").hide()
-    }
-
-    handleEditStatus = (item) => {
-        $("#modal_pemesanan").show()
+  getTipe_kamar = () => {
+    let url = 'http://localhost:8000/tipe_kamar/'
+    axios
+      .get(url, this.headerConfig())
+      .then((response) => {
         this.setState({
-            id_pemesanan: item.id,
-            status_pemesanan: item.status_pemesanan,
-            action: "update"
+          tipe_kamar: response.data.data,
         })
-        console.log(this.state.id_pemesanan);
+        console.log(response.data.data)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  }
 
-    }
-
-    handleAdd = () => {
-        $("#modal_pemesanan").show(
-            this.setState({
-                id_pemesanan: "",
-                id_tipe_kamar: "",
-                nomor_pemesanan: "",
-                nama_pemesanan: "",
-                email_pemesanan: "",
-                tgl_pemesanan: "",
-                tgl_check_in: "",
-                tgl_check_out: "",
-                nama_tamu: "",
-                //jumlah_kamar: "",
-                status_pemesanan: "",
-                
-                action: "insert"
-            })
-        )
-    }
-
-    handleEdit = (item) => {
-        $("#modal_pemesanan").show()
+  getPemesanan = () => {
+    let url = 'http://localhost:8000/pemesanan/'
+    axios
+      .get(url, this.headerConfig())
+      .then((response) => {
         this.setState({
-            id_pemesanan:item.id,
-            status_pemesanan: item.status_pemesanan,
+          pemesanan: response.data.data,
         })
+        console.log(response.data.data)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  }
+
+  checkRole = () => {
+    if (this.state.role !== 'admin' && this.state.role !== 'resepsionis') {
+      localStorage.clear()
+      window.alert('LOH SIAPA KAMU WE')
+      window.location = '/'
     }
+  }
 
-    handleSave = (e) => {
-        e.preventDefault()
-        console.log(this.state.id_pemesanan);
-        let form = {
-            status_pemesanan: this.state.status_pemesanan
-        }
-        if (this.state.action === "update") {
-            let url = `http://localhost:8000/pemesanan/update/${this.state.id_pemesanan}`
-            axios
-                .put(url, form, this.headerConfig())
-                .then((response) => {
-                    this.getPemesanan()
-                    this.getTipe_kamar()
-                    this.getUser()
-                    this.handleClose()
-                })
-                .catch(error => {
-                    console.log("error add data", error.response.status)
-                    if (error.response.status === 500) {
-                        window.alert("Hayo gabisa tambah data");
-                    }
-                })
+  componentDidMount() {
+    this.getPemesanan()
+    this.checkRole()
+  }
 
-        }
 
-    }
 
-    _handleFilter = () => {
-        let data = {
-            keyword: this.state.keyword,
-        }
-        let url = `http://localhost:8000/pemesanan/find`
-        axios
-            .post(url, data, this.headerConfig())
-            .then(response => {
-                if (response.status === 200) {
-                    this.setState({
-                        pemesanan: response.data.data
-                    })
-                } else {
-                    alert(response.data.message)
-                    this.setState({ message: response.data.message })
+  render() {
+    return (
+      <div class="flex flex-row min-h-screen bg-gray-100 text-gray-800">
+        <Sidebar />
+        <main class="main flex flex-col flex-grow -ml-64 md:ml-0 transition-all duration-150 ease-in">
+          <Header />
+          <div class="main-content flex flex-col flex-grow p-4">
+            <h1 class="font-bold text-xl text-black-700">
+              Daftar History Transaksi Customer
+            </h1>
+            <p class="text-gray-700">For History Pemesanan Room</p>
 
-                }
-            })
-            .catch(error => {
-                console.log("error", error.response.status)
-            })
-    }
+            <div className="flex mt-2 flex-row-reverse">
+              <div className="flex rounded w-1/3 mr-4">
+                <input
+                  type="text"
+                  className="w-2/3 block px-4 py-2 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40 "
+                  placeholder="Search..."
+                  name="keyword"
+                  value={this.state.keyword}
+                  onChange={this.handleChange}
+                />
+                <button
+                  className="w-1/3 ml-2 px-4 text-white bg-blue-600 rounded hover:bg-blue-700"
+                  onClick={this._handleFilter}
+                >
+                  <FontAwesomeIcon icon={faSearch} size="" />
+                </button>
+                {this.state.role === 'resepsionis' && (
+                  <button
+                    className="w-1/5 ml-2 px-4 text-white bg-blue-600 rounded hover:bg-blue-700"
+                    onClick={() => this.handleAdd()}
+                  >
+                    <FontAwesomeIcon icon={faPlus} size="" /> Add
+                  </button>
+                )}
+              </div>
+            </div>
 
-    
-
-    getUser = () => {
-        let url = "http://localhost:8000/user/"
-        axios
-            .get(url, this.headerConfig())
-            .then(response => {
-
-                this.setState({
-                    user: response.data.data
-                })
-                console.log(response.data.data)
-            })
-            .catch((error) => {
-                console.log(error)
-            })
-    }
-
-    getTipe_kamar = () => {
-        let url = "http://localhost:8000/tipe_kamar/"
-        axios
-            .get(url, this.headerConfig())
-            .then(response => {
-
-                this.setState({
-                    tipe_kamar: response.data.data
-                })
-                console.log(response.data.data)
-            })
-            .catch((error) => {
-                console.log(error)
-            })
-    }
-
-    getPemesanan = () => {
-        let url = "http://localhost:8000/pemesanan/"
-        axios
-            .get(url, this.headerConfig())
-            .then(response => {
-
-                this.setState({
-                    pemesanan: response.data.data
-                })
-                console.log(response.data.data)
-            })
-            .catch((error) => {
-                console.log(error)
-            })
-    }
-
-    checkRole = () => {
-        if (this.state.role !== "admin" && this.state.role !== "resepsionis") {
-            localStorage.clear()
-            window.alert("LOH SIAPA KAMU WE")
-            window.location = '/'
-        }
-    }
-
-    componentDidMount() {
-        this.getPemesanan()
-        this.checkRole()
-    }
-
-    render() {
-        return (
-            <div class="flex flex-row min-h-screen bg-gray-100 text-gray-800">
-                <Sidebar />
-                <main class="main flex flex-col flex-grow -ml-64 md:ml-0 transition-all duration-150 ease-in">
-                    <Header />
-                    <div class="main-content flex flex-col flex-grow p-4">
-
-                        <h1 class="font-bold text-xl text-black-700">Daftar History Transaksi Customer</h1>
-                        <p class="text-gray-700">For History Pemesanan Room</p>
-
-                        <div className="flex mt-2 flex-row-reverse">
-                            <div className="flex rounded w-1/3 mr-4">
-                                <input
-                                    type="text"
-                                    className="w-2/3 block px-4 py-2 bg-white border rounded-md focus:border-blue-400 focus:ring-blue-300 focus:outline-none focus:ring focus:ring-opacity-40 "
-                                    placeholder="Search..."
-                                    name="keyword"
-                                    value={this.state.keyword}
-                                    onChange={this.handleChange}
-                                />
-                                <button className="w-1/3 ml-2 px-4 text-white bg-blue-600 rounded hover:bg-blue-700" onClick={this._handleFilter}>
-                                    <FontAwesomeIcon icon={faSearch} size="" />
-                                </button>
-                                {this.state.role === "resepsionis" && (
-                                        <button className="w-1/5 ml-2 px-4 text-white bg-blue-600 rounded hover:bg-blue-700" onClick={() => this.handleAdd()}>
-                                            <FontAwesomeIcon icon={faPlus} size=''/> Add
-                                        </button>
-                                    ) }
-                            </div>
-                        </div>
-
-                        <div className="flex flex-col mt-2 mr-4">
-                            <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                                <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
-                                    <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
-                                        <table className="min-w-full divide-y divide-gray-200">
-                                            <thead className="bg-gray-50">
-                                                <tr>
-                                                    <th
-                                                        scope="col"
-                                                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                                    >
-                                                        Pemesanan Number
-                                                    </th>
-                                                    <th
-                                                        scope="col"
-                                                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                                    >
-                                                        Nama Cust
-                                                    </th>
-                                                    <th
-                                                        scope="col"
-                                                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                                    >
-                                                        Tipe Room
-                                                    </th>
-                                                    <th
-                                                        scope="col"
-                                                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                                    >
-                                                        Total Room
-                                                    </th>
-                                                    <th
-                                                        scope="col"
-                                                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                                    >
-                                                        Pemesanan
-                                                    </th>
-                                                    <th
-                                                        scope="col"
-                                                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                                    >
-                                                        Check In
-                                                    </th>
-                                                    <th
-                                                        scope="col"
-                                                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                                    >
-                                                        Check Out
-                                                    </th>
-                                                    <th
-                                                        scope="col"
-                                                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                                    >
-                                                        Status
-                                                    </th>
-                                                    {this.state.role === 'resepsionis' && (
-                                                        <th
-                                                            scope="col"
-                                                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                                        >
-                                                            Aksi
-                                                        </th>
-                                                    )}
-
-                                                </tr>
-                                            </thead>
-                                            <tbody className="bg-white divide-y divide-gray-200">
-                                                {this.state.pemesanan.map((item, index) => {
-                                                    return (
-                                                        <tr key={index}>
-                                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                                <div className="flex items-center">
-                                                                    <div className="text-sm font-medium text-gray-900">
-                                                                        {item.nomor_pemesanan}
-                                                                    </div>
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                                <div className="text-sm text-gray-900">
-                                                                    {item.nama_pemesanan}
-                                                                </div>
-                                                            </td>
-
-                                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
-                                                                    {item.tipe_kamar?.nama_tipe_kamar}
-                                                                </span>
-                                                            </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                                <div className="text-sm text-gray-900">
-                                                                    {item.jumlah_kamar}
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                                <div className="text-sm text-gray-900">
-                                                                    {moment(item.tgl_pemesanan).format('DD-MM-YYYY')}
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                                <div className="text-sm text-gray-900">
-                                                                    {moment(item.tgl_check_in).format('DD-MM-YYYY')}
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                                <div className="text-sm text-gray-900">
-                                                                    {moment(item.tgl_check_out).format('DD-MM-YYYY')}
-                                                                </div>
-                                                            </td>
-                                                            <td className="px-6 py-4 whitespace-nowrap">
-                                                                {item.status_pemesanan === "baru" &&
-                                                                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800">
-                                                                        {item.status_pemesanan}
-                                                                    </span>
-                                                                }
-                                                                {item.status_pemesanan === "check_in" &&
-                                                                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
-                                                                        {item.status_pemesanan}
-                                                                    </span>
-                                                                }
-                                                                {item.status_pemesanan === "check_out" &&
-                                                                    <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
-                                                                        {item.status_pemesanan}
-                                                                    </span>
-                                                                }
-
-                                                            </td>
-                                                            {this.state.role === 'resepsionis' && (
-                                                                <td className="px-6 py-4 whitespace-nowrap">
-                                                                    <button class="bg-green-600 hover:bg-green-700 text-white py-1 px-2 rounded mr-2" onClick={() => this.handleEditStatus(item)}>
-                                                                        <FontAwesomeIcon
-                                                                            icon={faPencilSquare}
-                                                                            size="lg"
-                                                                        />
-                                                                    </button>
-                                                                </td>
-                                                            )}
-                                                        </tr>
-                                                    );
-                                                })}
-                                            </tbody>
-                                        </table>
-                                    </div>
+            <div className="flex flex-col mt-2 mr-4">
+              <div className="-my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                <div className="py-2 align-middle inline-block min-w-full sm:px-6 lg:px-8">
+                  <div className="shadow overflow-hidden border-b border-gray-200 sm:rounded-lg">
+                    <table className="min-w-full divide-y divide-gray-200">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
+                            Pemesanan Number
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
+                            Nama Cust
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
+                            Tipe Room
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
+                            Total Room
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
+                            Pemesanan
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
+                            Check In
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
+                            Check Out
+                          </th>
+                          <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                          >
+                            Status
+                          </th>
+                          {this.state.role === 'resepsionis' && (
+                            <th
+                              scope="col"
+                              className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            >
+                              Aksi
+                            </th>
+                          )}
+                        </tr>
+                      </thead>
+                      <tbody className="bg-white divide-y divide-gray-200">
+                        {this.state.pemesanan.map((item, index) => {
+                          return (
+                            <tr key={index}>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="flex items-center">
+                                  <div className="text-sm font-medium text-gray-900">
+                                    {item.nomor_pemesanan}
+                                  </div>
                                 </div>
-                            </div>
-                        </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="text-sm text-gray-900">
+                                  {item.nama_pemesanan}
+                                </div>
+                              </td>
 
-
-                    </div>
-                    <footer class="footer px-4 py-2">
-                        <div class="footer-content">
-                            <p class="text-sm text-gray-600 text-center">REDFlag 2023. All rights reserved.</p>
-                        </div>
-                    </footer>
-                </main>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                                  {item.tipe_kamar?.nama_tipe_kamar}
+                                </span>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="text-sm text-gray-900">
+                                  {item.jumlah_kamar}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="text-sm text-gray-900">
+                                  {moment(item.tgl_pemesanan).format(
+                                    'DD-MM-YYYY',
+                                  )}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="text-sm text-gray-900">
+                                  {moment(item.tgl_check_in).format(
+                                    'DD-MM-YYYY',
+                                  )}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                <div className="text-sm text-gray-900">
+                                  {moment(item.tgl_check_out).format(
+                                    'DD-MM-YYYY',
+                                  )}
+                                </div>
+                              </td>
+                              <td className="px-6 py-4 whitespace-nowrap">
+                                {item.status_pemesanan === 'baru' && (
+                                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-indigo-100 text-indigo-800">
+                                    {item.status_pemesanan}
+                                  </span>
+                                )}
+                                {item.status_pemesanan === 'check_in' && (
+                                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">
+                                    {item.status_pemesanan}
+                                  </span>
+                                )}
+                                {item.status_pemesanan === 'check_out' && (
+                                  <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                                    {item.status_pemesanan}
+                                  </span>
+                                )}
+                              </td>
+                              {this.state.role === 'resepsionis' && (
+                                <td className="px-6 py-4 whitespace-nowrap">
+                                  <button
+                                    class="bg-green-600 hover:bg-green-700 text-white py-1 px-2 rounded mr-2"
+                                    onClick={() => this.handleEditStatus(item)}
+                                  >
+                                    <FontAwesomeIcon
+                                      icon={faPencilSquare}
+                                      size="lg"
+                                    />
+                                  </button>
+                                </td>
+                              )}
+                            </tr>
+                          )
+                        })}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <footer class="footer px-4 py-2">
+            <div class="footer-content">
+              <p class="text-sm text-gray-600 text-center">
+                REDFlag 2023. All rights reserved.
+              </p>
+            </div>
+          </footer>
+        </main>
 
         {/* Modal Form */}
         <div
@@ -441,7 +495,7 @@ export default class HistoryTransaksi extends React.Component {
               </button>
               <div class="px-6 py-6 lg:px-8">
                 <h3 class="mb-4 text-xl font-medium text-gray-900 dark:text-black">
-                  Edit Status Booking{" "}
+                  Edit Status Booking{' '}
                 </h3>
                 <form
                   class="space-y-6"
@@ -482,7 +536,7 @@ export default class HistoryTransaksi extends React.Component {
 
         {/* Modal Form */}
         <div
-          id="modal_pemesanan"
+          id="modal_booking"
           tabindex="-1"
           aria-hidden="true"
           className="overflow-x-auto fixed top-0 left-0 right-0 z-50 hidden w-full p-4 md:inset-0 h-modal md:h-full bg-tranparent bg-black bg-opacity-50"
@@ -511,7 +565,7 @@ export default class HistoryTransaksi extends React.Component {
               </button>
               <div className="px-6 py-6 lg:px-8">
                 <h3 className="mb-4 text-xl font-medium text-gray-900 dark:text-black">
-                  {this.state.action === "insert" ? "Add" : "Edit"} Pemesanan
+                  {this.state.action === 'insert' ? 'Add' : 'Edit'} Pemesanan
                 </h3>
                 <form
                   className="space-y-6"
@@ -639,6 +693,6 @@ export default class HistoryTransaksi extends React.Component {
           </div>
         </div>
       </div>
-    );
+    )
   }
 }
